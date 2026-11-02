@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gcf-multiqc"
-version = "0.1.0rc3"
+version = "0.1.0rc4"
 description = "GCF reporting extensions and legacy workflow compatibility for upstream MultiQC"
 readme = "README.md"
 requires-python = ">=3.11"

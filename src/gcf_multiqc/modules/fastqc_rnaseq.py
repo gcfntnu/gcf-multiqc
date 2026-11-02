@@ -1,5 +1,8 @@
 """GCF's FastQC selector, implemented by the upstream FastQC parser."""
 
+from copy import deepcopy
+
+from multiqc import config
 from multiqc.modules.fastqc.fastqc import MultiqcModule as NativeFastQC
 from multiqc.types import Anchor
 
@@ -17,6 +20,17 @@ class MultiqcModule(NativeFastQC):
             "generalstats": False,
         }
         super().__init__()
+
+    def _clean_s_name(self, *args, fn_clean_exts=None, **kwargs):
+        # Summary modules join both mates under one sample. FastQC plots must
+        # retain each mate instead of overwriting it with whichever is read last.
+        # Pass local rules to upstream; never change the shared configuration.
+        rules = config.fn_clean_exts if fn_clean_exts is None else fn_clean_exts
+        return super()._clean_s_name(
+            *args,
+            fn_clean_exts=deepcopy([rule for rule in rules if rule not in ("_R1", "_R2")]),
+            **kwargs,
+        )
 
     def find_log_files(self, sp_key, *args, **kwargs):
         # This is called immediately after native module initialization, before

@@ -1,5 +1,6 @@
 """Render public synthetic inputs through installed MultiQC and GCF entry points."""
 
+from copy import deepcopy
 import json
 import os
 from pathlib import Path
@@ -35,7 +36,7 @@ def render(tmp_path, inputs, modules, extra_config=None):
         sys.executable,
         "-m",
         "multiqc",
-        str(inputs),
+        *[str(path) for path in (inputs if isinstance(inputs, list) else [inputs])],
         "--strict",
         "--require-logs",
         "--no-megaqc-upload",
@@ -92,9 +93,101 @@ def test_fastqc_alias_preserves_plots_and_removal_selectors(tmp_path, zipped):
     assert 'id="fastqc_rnaseq_sequence_counts"' not in html
     assert 'id="fastqc_rnaseq_status_checks"' not in html
     assert set(data["report_general_stats_data"]) == {"fastp"}
-    assert data["report_saved_raw_data"]["multiqc_fastqc"]["Synthetic"]["Total Sequences"] == 1000
+    assert data["report_saved_raw_data"]["multiqc_fastqc"]["Synthetic_R1"]["Total Sequences"] == 1000
     assert (output / "multiqc_data" / "multiqc_fastqc.txt").is_file()
     assert data["report_plot_data"]
+
+
+def paired_fastqc_archives(tmp_path):
+    archives = []
+    for mate, mean_quality, status in ((1, 35, "warn"), (2, 25, "pass")):
+        name = f"Synthetic_R{mate}"
+        content = (FIXTURES / "fastqc/fastqc_data.txt").read_text()
+        content = content.replace("Synthetic_R1", name)
+        if mate == 2:
+            content = content.replace("1000", "2000").replace("75000", "150000")
+        content += (
+            ">>Per base sequence quality\tpass\n"
+            "#Base\tMean\tMedian\tLower Quartile\tUpper Quartile\t10th Percentile\t90th Percentile\n"
+            f"1\t{mean_quality}\t{mean_quality}\t20\t40\t15\t40\n"
+            ">>END_MODULE\n"
+            f">>Overrepresented sequences\t{status}\n"
+        )
+        if mate == 1:
+            content += "#Sequence\tCount\tPercentage\tPossible Source\nACGTACGTACGT\t200\t20.0\tSynthetic control\n"
+        content += ">>END_MODULE\n"
+        archive_path = tmp_path / f"{name}_fastqc.zip"
+        with zipfile.ZipFile(archive_path, "w") as archive:
+            archive.writestr(f"{name}_fastqc/", "")
+            archive.writestr(f"{name}_fastqc/fastqc_data.txt", content)
+        archives.append(archive_path)
+    return archives
+
+
+@pytest.mark.parametrize("reverse", [False, True])
+def test_fastqc_alias_keeps_both_mates_independent_of_input_order(tmp_path, reverse):
+    archives = paired_fastqc_archives(tmp_path)
+    originals = {path: path.read_bytes() for path in archives}
+    inputs = list(reversed(archives)) if reverse else archives
+    data, html, _ = render(
+        tmp_path,
+        [*inputs, FIXTURES / "Synthetic.fastp.json"],
+        ["fastqc_rnaseq", "fastp"],
+        {"module_order": ["fastqc_rnaseq", "fastp"]},
+    )
+    raw = data["report_saved_raw_data"]["multiqc_fastqc"]
+    assert {sample: values["Total Sequences"] for sample, values in raw.items()} == {
+        "Synthetic_R1": 1000,
+        "Synthetic_R2": 2000,
+    }
+    assert raw["Synthetic_R1"]["overrepresented_sequences"] == "warn"
+    assert raw["Synthetic_R2"]["overrepresented_sequences"] == "pass"
+    assert set(data["report_general_stats_data"]) == {"fastp"}
+    assert set(data["report_general_stats_data"]["fastp"]) == {"Synthetic"}
+    quality = data["report_plot_data"]["fastqc_rnaseq_per_base_sequence_quality_plot"]["datasets"][0]
+    assert {line["name"]: line["pairs"] for line in quality["lines"]} == {
+        "Synthetic_R1": [[1, 35.0]],
+        "Synthetic_R2": [[1, 25.0]],
+    }
+    overrep = data["report_plot_data"]["fastqc_rnaseq_overrepresented_sequences_plot"]["datasets"][0]
+    top = next(category for category in overrep["cats"] if category["name"] == "Top overrepresented sequence")
+    assert dict(zip(overrep["samples"], top["data"])) == {"Synthetic_R1": 20, "Synthetic_R2": 0}
+    assert 'id="fastqc_rnaseq_top_overrepresented_sequences"' in html
+    assert {path: path.read_bytes() for path in archives} == originals
+
+
+def test_native_fastqc_optout_keeps_native_mate_names_and_general_stats(tmp_path):
+    data, html, _ = render(tmp_path, paired_fastqc_archives(tmp_path), ["fastqc"], {"gcf_compatibility": False})
+    assert set(data["report_saved_raw_data"]["multiqc_fastqc"]) == {"Synthetic_R1", "Synthetic_R2"}
+    assert set(data["report_general_stats_data"]["fastqc"]) == {"Synthetic_R1", "Synthetic_R2"}
+    assert 'id="fastqc"' in html
+    assert 'id="fastqc_rnaseq"' not in html
+
+
+def test_fastqc_alias_does_not_mutate_global_name_cleaning(monkeypatch):
+    from multiqc import config, report
+    from multiqc.base_module import BaseMultiqcModule
+
+    from gcf_multiqc.modules.fastqc_rnaseq import MultiqcModule
+
+    rules = [".gz", ".fastq", "_R1", "_R2", {"type": "truncate", "pattern": ".trimmed", "module": "fastqc_rnaseq"}]
+    original = deepcopy(rules)
+    monkeypatch.setattr(config, "fn_clean_exts", rules)
+    monkeypatch.setattr(config, "fn_clean_sample_names", True)
+    monkeypatch.setattr(config, "fn_clean_trim", [])
+    monkeypatch.setattr(config, "prepend_dirs", False)
+    monkeypatch.setattr(config, "use_filename_as_sample_name", False)
+    monkeypatch.setattr(config, "sample_names_replace", {})
+    monkeypatch.setattr(report, "sample_names", [])
+    module = MultiqcModule.__new__(MultiqcModule)
+    module.anchor = "fastqc_rnaseq"
+    source = {"root": "/synthetic", "fn": "Synthetic_R1_fastqc.zip", "sp_key": "fastqc_rnaseq/zip"}
+    assert module.clean_s_name("Synthetic_R1.fastq.gz", source) == "Synthetic_R1"
+    assert module.clean_s_name("Synthetic_R2.fastq.gz", source) == "Synthetic_R2"
+    assert config.fn_clean_exts is rules and config.fn_clean_exts == original
+    standard = BaseMultiqcModule.__new__(BaseMultiqcModule)
+    standard.anchor = "fastp"
+    assert standard.clean_s_name("Synthetic_R1.fastq.gz", source) == "Synthetic"
 
 
 @pytest.mark.parametrize("selector", ["fastp", "gcf_fastp"])
