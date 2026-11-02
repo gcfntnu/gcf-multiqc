@@ -1,11 +1,18 @@
 parse:
-  fn: [agg_sample_summary.csv, '*.agg_sample_summary.csv', agg_samp_ana_summary.csv, '*.agg_samp_ana_summary.csv']
+  - fn: agg_sample_summary.csv
+  - fn: '*.agg_sample_summary.csv'
+  - fn: agg_samp_ana_summary.csv
+  - fn: '*.agg_samp_ana_summary.csv'
 starsolo:
-  fn: ['*_Summary.csv', Summary.csv]
-  contents: 'Number of Reads'
+  - fn: '*_Summary.csv'
+    contents: 'Number of Reads'
+  - fn: Summary.csv
+    contents: 'Number of Reads'
 cellranger_count:
-  fn: ['*.metrics_summary.csv', metrics_summary.csv]
-  contents: 'Estimated Number of Cells'
+  - fn: '*.metrics_summary.csv'
+    contents: 'Estimated Number of Cells'
+  - fn: metrics_summary.csv
+    contents: 'Estimated Number of Cells'
 cellranger/mkfastq:
   fn: qc_summary.json
   contents: '10x_software_version'
