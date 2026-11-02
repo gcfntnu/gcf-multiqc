@@ -1,5 +1,6 @@
 """Synthetic single-cell adapter contracts, including real installed CLI rendering."""
 
+import csv
 import io
 import json
 import os
@@ -64,6 +65,43 @@ def test_parse_fraction_and_missing_value_semantics():
         )
     )
     assert data == {"number_of_reads": 1000, "number_of_cells": 0, "sequencing_saturation": 0.25, "annotation": "<1"}
+
+
+def test_parse_splitpipe_producer_columns_preserve_extra_metrics_and_all_sample_summary():
+    # Column names follow the collected SplitPipe format; every value is invented.
+    metrics = {
+        "sample_well_count": 2,
+        "number_of_cells": 10,
+        "GRCh38_median_tscp_per_cell": 200,
+        "GRCh38_median_tscp_at50": 250,
+        "GRCh38_median_genes_per_cell": 100,
+        "mean_reads_per_cell": 100,
+        "number_of_reads": 1000,
+        "number_of_tscp": 500,
+        "sequencing_saturation": 0.25,
+        "valid_barcode_fraction": 0.95,
+        "bc1_Q30": 0.96,
+        "bc2_Q30": 0.97,
+        "bc3_Q30": 0.98,
+        "cDNA_Q30": 0.99,
+        "polyN_Q30": 0.90,
+        "sample_tmap_fraction": 0.75,
+        "transcriptome_map_fraction": 0.85,
+        "tso_fraction_in_read1": 0.05,
+        "GRCh38_fraction_reads_in_cells": 0.80,
+        "GRCh38_fraction_tscp_in_cells": 0.82,
+        "GRCh38_fraction_exonic": 0.72,
+        "cell_tscp_cutoff": 50,
+        "cell_tscp_f01_slope": -0.75,
+    }
+    stream = io.StringIO()
+    writer = csv.writer(stream)
+    writer.writerow(["sample", *metrics])
+    # The aggregate can follow biological-sample rows; it must be the selected row.
+    writer.writerow(["001", *([0] * len(metrics))])
+    writer.writerow(["all-sample", *metrics.values()])
+    stream.seek(0)
+    assert parse.parse_summary(stream) == metrics
 
 
 def test_starsolo_numeric_metrics_and_legacy_spelling():
