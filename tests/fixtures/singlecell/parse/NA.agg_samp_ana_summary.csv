@@ -1,0 +1,11 @@
+metric,all-sample,001
+number_of_reads,1000,0
+number_of_cells,10,0
+mean_reads_per_cell,100,0
+valid_barcode_fraction,0.98,0
+sequencing_saturation,0.25,0
+bc1_Q30,0.96,0
+bc2_Q30,0.95,0
+bc3_Q30,0.94,0
+cDNA_Q30,0.93,0
+transcriptome_map_fraction,0.85,0

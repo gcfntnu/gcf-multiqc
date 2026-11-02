@@ -1,0 +1,23 @@
+{
+  "10x_software_version": "cellranger-atac-2.0.0",
+  "sample_qc": {
+    "001": {
+      "all": {
+        "number_reads": 1000,
+        "barcode_exact_match_ratio": 0.98,
+        "barcode_q30_base_ratio": 0.96,
+        "read1_q30_base_ratio": 0.93,
+        "read2_q30_base_ratio": 0.92,
+        "bc_on_whitelist": 0.99,
+        "mean_barcode_qscore": 35.5
+      }
+    },
+    "NA": {
+      "all": {
+        "number_reads": 0,
+        "gem_count_estimate": 0,
+        "barcode_exact_match_ratio": 0
+      }
+    }
+  }
+}
