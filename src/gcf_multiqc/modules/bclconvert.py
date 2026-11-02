@@ -65,13 +65,15 @@ class MultiqcModule(UpstreamBclConvert):
 
         # Share canonical chunks so later Quality_Metrics parsing updates both
         # views. Only colliding lane labels across runs need a run-name prefix.
+        # Plot categories are shared by all samples, so collision detection must
+        # include every run, even when their sample sets do not overlap.
+        counts = Counter(lane_id for run in data_by_run.values() for lane_id in run.lanes)
         chunks_by_sample = defaultdict(list)
         for run_id, run in data_by_run.items():
             for lane_id, lane in run.lanes.items():
                 for sample, chunk in lane.samples.items():
                     chunks_by_sample[sample].append((run_id, lane_id, chunk))
         for sample, chunks in chunks_by_sample.items():
-            counts = Counter(lane_id for _, lane_id, _ in chunks)
             data_by_sample[sample].lanes = {
                 f"{run_id} - {lane_id}" if counts[lane_id] > 1 else lane_id: chunk for run_id, lane_id, chunk in chunks
             }
