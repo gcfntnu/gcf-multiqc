@@ -173,6 +173,58 @@ def test_bclconvert_keeps_chunks_distinct_across_files_and_runs(tmp_path, same_r
     assert {category["name"]: category["data"][0] for category in per_lane["cats"]} == expected
 
 
+@pytest.mark.parametrize("overlap", [False, True])
+def test_bclconvert_lane_categories_are_consistent_for_every_sample(tmp_path, overlap):
+    second_run = "260102_SYNTHETIC_0002_TEST"
+    first_sample = "shared" if overlap else "first"
+    second_sample = "shared" if overlap else "second"
+
+    def prepare(inputs):
+        (inputs / "Top_Unknown_Barcodes.csv").unlink(missing_ok=True)
+        write_indexed_demux(
+            inputs,
+            [
+                (1, "only_first", "AAAA+CCCC", 4, 4, 30),
+                (1, first_sample, "TTTT+CCCC", 10, 10, 30),
+                (2, "only_first", "AAAA+CCCC", 2, 2, 30),
+            ],
+        )
+        write_indexed_demux(
+            inputs / "second",
+            [
+                (1, "only_second", "GGGG+TTTT", 9, 9, 30),
+                (1, second_sample, "CCCC+TTTT", 30, 30, 30),
+                (3, "only_second", "GGGG+TTTT", 3, 3, 30),
+            ],
+            run_id=second_run,
+        )
+
+    report = render(tmp_path, ["bclconvert"], prepare)
+    raw = report["report_saved_raw_data"]
+    samples = raw["multiqc_bclconvert_bysample"]
+    first_lane, second_lane = f"{RUN_ID} - L1", f"{second_run} - L1"
+    expected = {
+        "only_first": {first_lane: 4, "L2": 2},
+        "only_second": {second_lane: 9, "L3": 3},
+    }
+    expected.setdefault(first_sample, {})[first_lane] = 10
+    expected.setdefault(second_sample, {})[second_lane] = 30
+    for sample, lanes in expected.items():
+        assert {lane: chunk["clusters"] for lane, chunk in samples[sample]["lanes"].items()} == lanes
+        for lane, count in lanes.items():
+            chunk = samples[sample]["lanes"][lane]
+            source_lane = lane if " - " in lane else f"{chunk['run_id']} - {lane}"
+            assert chunk == raw["multiqc_bclconvert_bylane"][source_lane]["samples"][sample]
+            assert chunk["yield_"] == count * 302
+            assert chunk["mean_quality"] == 30
+    per_lane = report["report_plot_data"]["bclconvert_sample_counts"]["datasets"][1]
+    assert {category["name"] for category in per_lane["cats"]} == {first_lane, second_lane, "L2", "L3"}
+    for category in per_lane["cats"]:
+        assert dict(zip(per_lane["samples"], category["data"])) == {
+            sample: lanes.get(category["name"]) for sample, lanes in expected.items()
+        }
+
+
 def test_native_bclconvert_preserves_zero_and_missing_quality(tmp_path):
     report = render(tmp_path, ["bclconvert"])
     raw = report["report_saved_raw_data"]
