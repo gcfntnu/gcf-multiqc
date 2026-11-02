@@ -32,6 +32,7 @@ def adapt_scatter(content):
                         point.setdefault("group", str(point["name"]))
                     point["name"] = str(sample)
     pconfig = content.setdefault("pconfig", {})
+    pconfig.setdefault("showlegend", True)
     # The old small-RNA producer reuses pca_scatter for UMAP as well.
     if content["id"] == "umap" and pconfig.get("id") == "pca_scatter":
         pconfig.update(id="umap_scatter", title="UMAP", xlab="UMAP1", ylab="UMAP2")

@@ -270,6 +270,12 @@ class MultiqcModule(BaseMultiqcModule):
                 description="DEICODE robust compositional PCA. Points retain sample IDs and are colored by Sample_Group when available.",
                 plot=scatter.plot(
                     ordination,
-                    {"id": "dada2-rpca-plot", "title": "QIIME2: Sample Ordination", "xlab": "PC1", "ylab": "PC2"},
+                    {
+                        "id": "dada2-rpca-plot",
+                        "title": "QIIME2: Sample Ordination",
+                        "xlab": "PC1",
+                        "ylab": "PC2",
+                        "showlegend": True,
+                    },
                 ),
             )

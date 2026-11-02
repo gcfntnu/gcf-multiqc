@@ -71,6 +71,7 @@ def test_pca_sample_identity_and_dataset_labels(tmp_path):
         },
     )
     plot = report["report_plot_data"]["pca_scatter"]
+    assert plot["layout"]["showlegend"] is True
     assert len(plot["datasets"]) == 2
     for dataset in plot["datasets"]:
         assert dataset["points"][0]["name"] == "001"
@@ -79,6 +80,13 @@ def test_pca_sample_identity_and_dataset_labels(tmp_path):
     assert plot["datasets"][1]["dconfig"]["xlab"] == "PC3"
     assert plot["datasets"][1]["dconfig"]["xmax"] == 5
     assert "PC1" not in plot["datasets"][1]["trace_params"]["hovertemplate"]
+
+
+def test_scatter_explicit_legend_preference_is_preserved():
+    from gcf_multiqc.custom_content import adapt_scatter
+
+    content = {"id": "pca", "plot_type": "scatter", "pconfig": {"showlegend": False}, "data": {}}
+    assert adapt_scatter(content)["pconfig"]["showlegend"] is False
 
 
 def test_generalstats_preserves_text_metadata(tmp_path):

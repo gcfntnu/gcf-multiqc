@@ -156,6 +156,7 @@ def test_installed_report_contains_both_modules_and_correct_exports(tmp_path):
     assert metrics["001"] == {"miRNA Percentage": 0.1, "miRNA Detected": 2}
     assert metrics["1"] == {"miRNA Percentage": 0.1, "miRNA Detected": 1}
     report = json.loads((out / "multiqc_data/multiqc_data.json").read_text())
+    assert report["report_plot_data"]["dada2-rpca-plot"]["layout"]["showlegend"] is True
     points = report["report_plot_data"]["dada2-rpca-plot"]["datasets"][0]["points"]
     assert {point["name"] for point in points} == {"001", "NA"}
     assert {point["group"] for point in points} == {"group one", "group two"}
