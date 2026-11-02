@@ -19,6 +19,7 @@ dev = ["pytest>=8,<10", "build>=1,<2", "ruff>=0.14,<1"]
 Repository = "https://github.com/gcfntnu/gcf-multiqc"
 
 [project.entry-points."multiqc.modules.v1"]
+bracken = "gcf_multiqc.modules.bracken:MultiqcModule"
 parse = "gcf_multiqc.modules.parse:MultiqcModule"
 qiime2 = "gcf_multiqc.modules.qiime2:MultiqcModule"
 unitas = "gcf_multiqc.modules.unitas:MultiqcModule"

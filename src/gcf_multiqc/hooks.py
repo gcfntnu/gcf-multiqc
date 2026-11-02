@@ -16,14 +16,31 @@ def before_config():
     patterns = yaml.safe_load(files("gcf_multiqc").joinpath("search_patterns.yaml").read_text())
     for key, value in patterns.items():
         config.sp.setdefault(key, value)
+    # Bracken uses the Kraken report format, but needs an independent identity.
+    for suffix in ["*.bracken", "*.bracken_kreport", "*.bracken.kreport"]:
+        pattern = deepcopy(config.sp["kraken"])
+        pattern["fn"] = suffix
+        config.sp.setdefault("bracken", []).append(pattern)
     for source, alias in [("fastqc", "fastqc_rnaseq"), ("fastp", "gcf_fastp"), ("star", "gcf_star")]:
         for key, value in list(config.sp.items()):
             if key == source or key.startswith(source + "/"):
-                config.sp.setdefault(alias + key[len(source):], deepcopy(value))
+                config.sp.setdefault(alias + key[len(source) :], deepcopy(value))
 
 
 def config_loaded():
     """Preserve legacy selections deterministically; no duplicate entry point names."""
+    # Prevent Kraken consuming Bracken files first (or reporting them twice).
+    # Limit this partition to reports that actually enable the Bracken adapter.
+    if (not config.run_modules or "bracken" in config.run_modules) and "bracken" not in config.exclude_modules:
+        patterns = config.sp["kraken"]
+        for pattern in patterns if isinstance(patterns, list) else [patterns]:
+            excluded = pattern.setdefault("exclude_fn", [])
+            if isinstance(excluded, str):
+                excluded = pattern["exclude_fn"] = [excluded]
+            for bracken_pattern in config.sp.get("bracken", []):
+                filename = bracken_pattern.get("fn")
+                if filename and filename not in excluded:
+                    excluded.append(filename)
     if not getattr(config, "gcf_compatibility", True):
         return
     replacements = {

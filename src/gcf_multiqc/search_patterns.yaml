@@ -6,8 +6,6 @@ parse:
 starsolo:
   - fn: '*_Summary.csv'
     contents: 'Number of Reads'
-  - fn: Summary.csv
-    contents: 'Number of Reads'
 cellranger_count:
   - fn: '*.metrics_summary.csv'
     contents: 'Estimated Number of Cells'
@@ -16,9 +14,11 @@ cellranger_count:
 cellranger/mkfastq:
   fn: qc_summary.json
   contents: '10x_software_version'
+  shared: true
 gcf_cellranger_mkfastq/mkfastq:
   fn: qc_summary.json
   contents: '10x_software_version'
+  shared: true
 qiime2/dada2:
   fn: metadata.tsv
   contents: 'percentage of input non-chimeric'
