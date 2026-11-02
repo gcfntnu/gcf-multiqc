@@ -1,0 +1,3 @@
+sample-id	input	filtered	denoised	merged	non-chimeric	percentage of input non-chimeric
+#q2:types	numeric	numeric	numeric	numeric	numeric	numeric
+001_V4	50	45	40	35	30	60

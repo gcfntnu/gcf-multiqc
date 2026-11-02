@@ -1,0 +1,4 @@
+miRNA	10
+   mature miRNA	8
+   precursor miRNA	2
+rRNA	90
