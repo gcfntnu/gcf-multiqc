@@ -1,7 +1,7 @@
 # GCF MultiQC extensions
 
 `gcf-multiqc` moves GCF reporting extensions out of the old MultiQC fork into an
-installable plugin for **upstream MultiQC 1.35**. Version **0.1.0rc2** is a
+installable plugin for **upstream MultiQC 1.35**. Version **0.1.0rc3** is a
 candidate for evaluating the existing GCF report commands. It is undergoing
 BFQ/workflow integration acceptance; production adoption remains pending.
 
@@ -22,14 +22,14 @@ python3.11 -m venv .venv
 .venv/bin/multiqc -m fastp -m fastqc_rnaseq -m custom_content /path/to/copied/logs
 ```
 
-The candidate image is `gcfntnu/gcf-multiqc:1.35-gcf0.1.0-rc2`. Its recipe belongs
+The candidate image is `gcfntnu/gcf-multiqc:1.35-gcf0.1.0-rc3`. Its recipe belongs
 to [gcf-docker/gcf-multiqc](https://github.com/gcfntnu/gcf-docker/tree/multiqc/upstream-plugin-candidate/gcf-multiqc).
 The published image digest is
-`sha256:8c53227c570280641c51738a8e7308ae11cddd00a1e0cd1092e5cef7d92cc9e9`,
-with plugin runtime source `df0aef569b77bd8f310c4e5dba77d2d65e03254f`,
-MultiQC 1.35 and Plotly 6.0.1. This rc2 image includes the General Statistics
-metadata and BCL Convert lane-count corrections below. The previous rc1 artifact
-remains available, with its original digest, for historical comparison.
+`sha256:f3a9873d88241e47f3bd38c0b68ae5b64c746b1d77b63a3182e00bbe3ffcf7b0`,
+with plugin runtime source `f73d196bad1781cf21cc5c71ac785b91df0c0f23`,
+MultiQC 1.35 and Plotly 6.0.1. This rc3 image includes the General Statistics
+metadata and BCL Convert lane-count/label corrections below. The previous rc1
+and rc2 artifacts retain their original digests for historical comparison.
 The image provides `multiqc` on PATH and `/opt/images/logo_ntnu.png`, and has no
 forced entry point. It is suitable for explicit Docker commands and later
 evaluation with the suite's existing Apptainer wrapper. Image publication does
@@ -38,7 +38,7 @@ not switch the suite to it.
 ```bash
 docker run --rm --network none --user "$(id -u):$(id -g)" \
   -v "$PWD/copied-logs:/inputs:ro" -v "$PWD/reports:/output" \
-  gcfntnu/gcf-multiqc:1.35-gcf0.1.0-rc2 \
+  gcfntnu/gcf-multiqc:1.35-gcf0.1.0-rc3 \
   multiqc --no-version-check --no-ai --no-megaqc-upload \
   -m fastp -m fastqc_rnaseq -m custom_content -o /output /inputs
 ```
@@ -54,7 +54,7 @@ BFQ owns a `multiqc` container wrapper with the same command name.
 | --- | --- |
 | `fastqc_rnaseq` | Upstream FastQC parsing and plots, historical section IDs, no FastQC General Statistics columns. |
 | `fastp` | Upstream parser/plots; retain input read count and GCF survival percentage column identity. |
-| `star` | Upstream parser; retain total mapped reads and GCF splice-event metric. |
+| `star` | Upstream parser; preserve GCF column keys with explicit aligned-read and splice-event meanings. |
 | `cellranger` | Historical GCF mkfastq `qc_summary.json` adapter. This selector means mkfastq in compatibility mode. |
 | `cellranger_count` | Historical count `*.metrics_summary.csv` adapter, with normalized numeric exports. |
 | `starsolo` | GCF staged `*_Summary.csv` summaries. Plain `Solo.out/Gene/Summary.csv` is not automatically treated as a sample. |
@@ -112,6 +112,10 @@ Compatibility does not preserve known numerical defects:
 - STAR's splice counts describe **events**, not distinct reads. The event/read
   ratio can exceed 100%; zero input reads yield unavailable ratios. The plot
   shows event counts instead of an invalid spliced/unspliced read partition.
+- STAR's `total_mapped` and `total_mapped_percent` keys now describe uniquely
+  mapped plus multimapped reads, excluding reads mapped to too many loci. The
+  visible labels are **Aligned reads** and **% Aligned**, with that definition
+  in their descriptions. The legacy fork included the too-many-loci category.
 - Missing QIIME ordination metadata raises a bounded error instead of hanging.
 - Duplicate identities in the GCF parsers raise an error instead of silently
   overwriting another sample. Malformed numeric inputs fail explicitly.
@@ -123,7 +127,8 @@ Compatibility does not preserve known numerical defects:
   the last row. Counts-per-lane plots agree with sample totals, modern and older
   quality metrics retain their weights, and index labels list all distinct
   sequences. Colliding lane names across sequencing runs include the run ID.
-  See [issue #4](https://github.com/gcfntnu/gcf-multiqc/issues/4).
+  See [issue #4](https://github.com/gcfntnu/gcf-multiqc/issues/4) and
+  [issue #5](https://github.com/gcfntnu/gcf-multiqc/issues/5).
 
 Reports use upstream's modern presentation. Pixel-for-pixel equivalence with
 the fork's old template is not a target. The unused legacy template and `fastv`
