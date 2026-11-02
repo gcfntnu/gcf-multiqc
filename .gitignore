@@ -1,0 +1,12 @@
+.dev/
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+multiqc_report.html
+multiqc_data/
+multiqc_plots/

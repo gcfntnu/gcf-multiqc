@@ -1,0 +1,24 @@
+parse:
+  fn: [agg_sample_summary.csv, '*.agg_sample_summary.csv', agg_samp_ana_summary.csv, '*.agg_samp_ana_summary.csv']
+starsolo:
+  fn: ['*_Summary.csv', Summary.csv]
+cellranger_count:
+  fn: ['*.metrics_summary.csv', metrics_summary.csv]
+cellranger/mkfastq:
+  fn: qc_summary.json
+gcf_cellranger_mkfastq/mkfastq:
+  fn: qc_summary.json
+qiime2/dada2:
+  fn: metadata.tsv
+  contents: 'percentage of input non-chimeric'
+  num_lines: 2
+qiime2/taxonomy:
+  fn: 'level-*.csv'
+qiime2/rpca:
+  fn: ordination_samples.txt
+unitas/annotation:
+  fn: unitas.annotation_summary.txt
+unitas/seqlen:
+  fn: 'unitas.*.info'
+unitas/mirna:
+  fn: 'miR-table_*.simplified.txt'

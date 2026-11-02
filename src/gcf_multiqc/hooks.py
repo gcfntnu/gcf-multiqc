@@ -1,0 +1,42 @@
+"""Register compatibility through MultiQC's supported hooks, without changing its files."""
+
+from copy import deepcopy
+from importlib.resources import files
+import logging
+
+from importlib_metadata import EntryPoint
+from multiqc import config
+import yaml
+
+log = logging.getLogger(__name__)
+
+
+def before_config():
+    """Defaults are installed before explicit user config, which remains authoritative."""
+    patterns = yaml.safe_load(files("gcf_multiqc").joinpath("search_patterns.yaml").read_text())
+    for key, value in patterns.items():
+        config.sp.setdefault(key, value)
+    for source, alias in [("fastqc", "fastqc_rnaseq"), ("fastp", "gcf_fastp"), ("star", "gcf_star")]:
+        for key, value in list(config.sp.items()):
+            if key == source or key.startswith(source + "/"):
+                config.sp.setdefault(alias + key[len(source):], deepcopy(value))
+
+
+def config_loaded():
+    """Preserve legacy selections deterministically; no duplicate entry point names."""
+    if not getattr(config, "gcf_compatibility", True):
+        return
+    replacements = {
+        "cellranger": "gcf_multiqc.modules.cellranger_mkfastq:MultiqcModule",
+        "fastp": "gcf_multiqc.modules.fastp:MultiqcModule",
+        "star": "gcf_multiqc.modules.star:MultiqcModule",
+        "custom_content": "gcf_multiqc.custom_content:custom_module_classes",
+    }
+    for name, target in replacements.items():
+        config.avail_modules[name] = EntryPoint(name=name, value=target, group="multiqc.modules.v1")
+    # These are the historical fork's defaults. Existing workflow configuration
+    # adds its own cleaning rules; the custom-content adapter preserves literal IDs.
+    for extension in [".namesorted", "_R1", "_R2"]:
+        if extension not in config.fn_clean_exts:
+            config.fn_clean_exts.append(extension)
+    log.info("GCF compatibility enabled (gcf-multiqc); upstream engine %s", config.version)

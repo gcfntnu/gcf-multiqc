@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gcf-multiqc"
+version = "0.1.0rc1"
+description = "GCF reporting extensions and legacy workflow compatibility for upstream MultiQC"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+dependencies = ["multiqc==1.35"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "build>=1,<2", "ruff>=0.14,<1"]
+
+[project.urls]
+Repository = "https://github.com/gcfntnu/gcf-multiqc"
+
+[project.entry-points."multiqc.modules.v1"]
+parse = "gcf_multiqc.modules.parse:MultiqcModule"
+qiime2 = "gcf_multiqc.modules.qiime2:MultiqcModule"
+unitas = "gcf_multiqc.modules.unitas:MultiqcModule"
+starsolo = "gcf_multiqc.modules.starsolo:MultiqcModule"
+cellranger_count = "gcf_multiqc.modules.cellranger_count:MultiqcModule"
+fastqc_rnaseq = "gcf_multiqc.modules.fastqc_rnaseq:MultiqcModule"
+gcf_cellranger_mkfastq = "gcf_multiqc.modules.cellranger_mkfastq:MultiqcModule"
+gcf_fastp = "gcf_multiqc.modules.fastp:MultiqcModule"
+gcf_star = "gcf_multiqc.modules.star:MultiqcModule"
+
+[project.entry-points."multiqc.hooks.v1"]
+before_config = "gcf_multiqc.hooks:before_config"
+config_loaded = "gcf_multiqc.hooks:config_loaded"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+gcf_multiqc = ["search_patterns.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
