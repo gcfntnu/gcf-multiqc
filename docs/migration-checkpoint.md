@@ -14,16 +14,16 @@ Do not install the reporting engine into BFQ's command environment.
 
 ## Current artifact
 
-- Engine: MultiQC **1.35**; extension: **0.1.0rc3**; Plotly: **6.0.1**.
-- Image: `gcfntnu/gcf-multiqc:1.35-gcf0.1.0-rc3`, Linux amd64.
-- Registry digest: `sha256:f3a9873d88241e47f3bd38c0b68ae5b64c746b1d77b63a3182e00bbe3ffcf7b0`.
-- Installed plugin source: `f73d196bad1781cf21cc5c71ac785b91df0c0f23`.
+- Engine: MultiQC **1.35**; extension: **0.1.0rc4**; Plotly: **6.0.1**.
+- Image: `gcfntnu/gcf-multiqc:1.35-gcf0.1.0-rc4`, Linux amd64.
+- Registry digest: `sha256:2c356684c03d24c11e63be5724d4f107c253eccd8be98c236952bd3df5435878`.
+- Installed plugin source: `4625e75315f5c89475af5ce70313642f4154ce40`.
 
 The image recipe pins its base digest, plugin source archive/checksum and Python
 wheel dependencies. Plotly remains below 6.1 because MultiQC 1.35 uses Kaleido
 0.2.1 for flat plots. Debian package repositories are not frozen, so rebuilding
 creates a separately identified artifact. The workflow selects the accepted
-registry digest rather than the moving `latest` tag. Earlier rc1/rc2 tags retain
+registry digest rather than the moving `latest` tag. Earlier rc1/rc2/rc3 tags retain
 their original contents.
 
 ## Reviewed source baseline
@@ -62,7 +62,7 @@ reads mapped to too many loci; splice counts describe events rather than a
 partition of reads; undefined ratios remain unavailable. Numeric exports and
 malformed/duplicate-input handling also have explicit contracts.
 
-Functional acceptance and review found three additional defects, now repaired:
+Functional acceptance and review found four additional defects, now repaired:
 
 - [Issue #3](https://github.com/gcfntnu/gcf-multiqc/issues/3): plain-text General
   Statistics metadata was coerced during rendering/export. Literal text is now
@@ -75,14 +75,19 @@ Functional acceptance and review found three additional defects, now repaired:
   reuse lane numbers need consistent labels across all samples. Collision
   detection now uses all runs, preserving short labels for single-run reports.
 
+- [Issue #6](https://github.com/gcfntnu/gcf-multiqc/issues/6): global filename
+  cleaning merged paired FastQC mates and retained whichever archive was read
+  last. FastQC now retains separate R1/R2 records and plots while other modules
+  keep their sample-level metadata joins.
+
 The companion BFQ change also removes duplicate `custom_content` selection for
 separate conversion passes. Native demultiplexer selection, report paths and
 zero/unavailable assignment semantics remain unchanged.
 
 ## Completed validation
 
-The current source passed **115 tests**, Ruff lint/format, dependency checks and
-sdist/wheel builds. All **115 tests also passed inside the rc3 image** as non-root,
+The current source passed **119 tests**, Ruff lint/format, dependency checks and
+sdist/wheel builds. All **119 tests also passed inside the rc4 image** as non-root,
 with networking disabled, read-only source inputs and container filesystem,
 and private writable output/temporary directories. Tests exercise installed
 MultiQC, strict HTML rendering, JSON/text exports, all seven public profiles,
@@ -90,7 +95,7 @@ native sequencing parsers, zero/missing values, aliases and actual flat-image
 export. A first sealed-container attempt timed out in the flat renderer with
 `/tmp` read-only; the unchanged image passed with a private writable mount.
 
-Eight copied-input reports rendered with the legacy engine and rc3: seven
+Eight copied-input reports rendered with the legacy engine and rc4: seven
 sequencing reports and one Parse report. All section sets and content gates
 passed. **20,594 common exported cells**, 1,170 plotted sample totals, 378
 unknown-barcode plot values and 69 Parse metrics across three library summaries
@@ -99,13 +104,20 @@ means use weighted averages rather than the legacy summed averages. InterOp
 unit changes preserve scale and labels. Three representative reports passed
 offline browser checks, including the counts-per-lane tab.
 
-Earlier synthetic and rc1/rc2 validation remains historical evidence. The rc3
+Earlier synthetic and rc1/rc2 validation remains historical evidence. The rc4
 checks use the current built artifact; they are not inferred from earlier tags.
 Original reference-corpus checksums remain unchanged. Full-run Parse HTML and
 reduced Parse CSVs from different datasets are not used as matched numeric oracles.
 
-A fresh seven-fixture suite run and matched project-report comparisons are in
-progress. Server acceptance includes scientific outputs, reporting, archives,
+Eight additional copied project-input sets passed with rc4, covering all active
+project profiles. All 35 FastQC archive identities, 630 basic/status fields and
+171 overrepresentation table values agree with source inputs. General Statistics
+and non-FastQC exports/plots remain unchanged from rc2. Eleven reports passed
+offline browser checks across the project and earlier sequencing/Parse sets.
+
+The rc2 seven-fixture scientific/operational run passed, but the subsequent
+project comparisons identified the FastQC mate loss described above. A fresh
+seven-fixture run with final rc4 is being started for complete acceptance. Server acceptance includes scientific outputs, reporting, archives,
 checksums, snapshots, restart behavior and configured test SMTP, with report
 content checked separately against source inputs and the legacy engine.
 Final results will be recorded in the coordinated image validation receipt.

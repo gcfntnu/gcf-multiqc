@@ -1,7 +1,7 @@
 # GCF MultiQC extensions
 
 `gcf-multiqc` moves GCF reporting extensions out of the old MultiQC fork into an
-installable plugin for **upstream MultiQC 1.35**. Version **0.1.0rc3** is a
+installable plugin for **upstream MultiQC 1.35**. Version **0.1.0rc4** is a
 candidate for evaluating the existing GCF report commands. It is undergoing
 BFQ/workflow integration acceptance; production adoption remains pending.
 
@@ -22,14 +22,14 @@ python3.11 -m venv .venv
 .venv/bin/multiqc -m fastp -m fastqc_rnaseq -m custom_content /path/to/copied/logs
 ```
 
-The candidate image is `gcfntnu/gcf-multiqc:1.35-gcf0.1.0-rc3`. Its recipe belongs
+The candidate image is `gcfntnu/gcf-multiqc:1.35-gcf0.1.0-rc4`. Its recipe belongs
 to [gcf-docker/gcf-multiqc](https://github.com/gcfntnu/gcf-docker/tree/multiqc/upstream-plugin-candidate/gcf-multiqc).
 The published image digest is
-`sha256:f3a9873d88241e47f3bd38c0b68ae5b64c746b1d77b63a3182e00bbe3ffcf7b0`,
-with plugin runtime source `f73d196bad1781cf21cc5c71ac785b91df0c0f23`,
-MultiQC 1.35 and Plotly 6.0.1. This rc3 image includes the General Statistics
+`sha256:2c356684c03d24c11e63be5724d4f107c253eccd8be98c236952bd3df5435878`,
+with plugin runtime source `4625e75315f5c89475af5ce70313642f4154ce40`,
+MultiQC 1.35 and Plotly 6.0.1. This rc4 image includes the General Statistics
 metadata and BCL Convert lane-count/label corrections below. The previous rc1
-and rc2 artifacts retain their original digests for historical comparison.
+and rc2/rc3 artifacts retain their original digests for historical comparison.
 The image provides `multiqc` on PATH and `/opt/images/logo_ntnu.png`, and has no
 forced entry point. It is suitable for explicit Docker commands and later
 evaluation with the suite's existing Apptainer wrapper. Image publication does
@@ -38,7 +38,7 @@ not switch the suite to it.
 ```bash
 docker run --rm --network none --user "$(id -u):$(id -g)" \
   -v "$PWD/copied-logs:/inputs:ro" -v "$PWD/reports:/output" \
-  gcfntnu/gcf-multiqc:1.35-gcf0.1.0-rc3 \
+  gcfntnu/gcf-multiqc:1.35-gcf0.1.0-rc4 \
   multiqc --no-version-check --no-ai --no-megaqc-upload \
   -m fastp -m fastqc_rnaseq -m custom_content -o /output /inputs
 ```
@@ -52,7 +52,7 @@ BFQ owns a `multiqc` container wrapper with the same command name.
 
 | Existing selection / behavior | Candidate implementation |
 | --- | --- |
-| `fastqc_rnaseq` | Upstream FastQC parsing and plots, historical section IDs, no FastQC General Statistics columns. |
+| `fastqc_rnaseq` | Upstream FastQC parsing and plots, separate paired-mate identities, historical section IDs, no FastQC General Statistics columns. |
 | `fastp` | Upstream parser/plots; retain input read count and GCF survival percentage column identity. |
 | `star` | Upstream parser; preserve GCF column keys with explicit aligned-read and splice-event meanings. |
 | `cellranger` | Historical GCF mkfastq `qc_summary.json` adapter. This selector means mkfastq in compatibility mode. |
@@ -107,6 +107,11 @@ all-module scans unless selected in `module_order`.
 
 Compatibility does not preserve known numerical defects:
 
+- FastQC plots retain separate R1/R2 identities. The fork's shared filename
+  cleaning merged mates and kept whichever archive was parsed last. The scoped
+  adapter preserves both mates without changing other modules' metadata joins
+  or adding FastQC General Statistics columns. See
+  [issue #6](https://github.com/gcfntnu/gcf-multiqc/issues/6).
 - Unitas miRNA fractions use each sample's own total. A zero total is unavailable,
   not a fabricated percentage.
 - STAR's splice counts describe **events**, not distinct reads. The event/read
@@ -123,6 +128,11 @@ Compatibility does not preserve known numerical defects:
   points. Parse, STARsolo and mkfastq fractions retain their historical scale.
 - PCA/UMAP tooltips identify samples, preserve group membership and colors,
   and use the selected component axes. Existing coordinates are not recomputed.
+- Taxonomy plots calculate total fragments from root-clade plus unclassified
+  counts. The legacy direct-assignment sum can undercount redistributed Bracken
+  reports and reduce the Other category. Taxon counts remain tied to the source;
+  percentages use the corrected total. Top-five lists can choose a different
+  taxon when scores tie, without changing those taxa's source counts.
 - BCL Convert sample/lane chunks sum all index rows rather than retaining only
   the last row. Counts-per-lane plots agree with sample totals, modern and older
   quality metrics retain their weights, and index labels list all distinct
