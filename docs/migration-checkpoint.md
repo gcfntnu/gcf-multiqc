@@ -68,8 +68,9 @@ validate scientific outputs, Apptainer behavior on the facility server, BFQ
 orchestration, real project reports, notification delivery or deployment.
 No GCF-suite integration test is included in this checkpoint.
 
-The source location referred to as `src` has not yet been identified. Until a
-representative operational log corpus is supplied, real-data acceptance remains
+Existing logs from the gcf-work test setup are a possible later acceptance
+corpus. This checkpoint uses synthetic fixtures and copied public configuration;
+no operational test-setup logs were copied or used. Real-data acceptance remains
 open. Copy approved logs into an ignored invocation-owned directory before
 testing; never add project data to this repository or the container context.
 
