@@ -30,7 +30,7 @@ def run_report(command, cwd):
     return result
 
 
-def test_workflow_relative_filename_keeps_report_and_exports_under_interim_directory(tmp_path):
+def test_workflow_relative_filename_keeps_report_and_exports_under_interim_directory(tmp_path, general_stats_cells):
     interim = Path("data/tmp/singlecell/bfq")
     logs = tmp_path / interim / "logs"
     figures = tmp_path / interim / "figs"
@@ -87,6 +87,8 @@ def test_workflow_relative_filename_keeps_report_and_exports_under_interim_direc
     data = json.loads((tmp_path / interim / "multiqc_SYNTHETIC_data/multiqc_data.json").read_text())
     assert data["report_saved_raw_data"]["multiqc_parse"]["001"]["number_of_reads"] == 1000
     assert data["report_general_stats_data"]["custom_content"]["001"]["External_ID"] == "0007"
+    assert data["report_saved_raw_data"]["multiqc_general_stats"]["001"]["custom_content_gcf-External_ID"] == "0007"
+    assert general_stats_cells((tmp_path / report_path).read_text(), "custom_content_gcf-External_ID")["001"] == "0007"
     assert "Synthetic summary" in (tmp_path / report_path).read_text()
 
 

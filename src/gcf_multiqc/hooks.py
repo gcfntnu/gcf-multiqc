@@ -54,6 +54,7 @@ def config_loaded():
     if not getattr(config, "gcf_compatibility", True):
         return
     replacements = {
+        "bclconvert": "gcf_multiqc.modules.bclconvert:MultiqcModule",
         "cellranger": "gcf_multiqc.modules.cellranger_mkfastq:MultiqcModule",
         "fastp": "gcf_multiqc.modules.fastp:MultiqcModule",
         "star": "gcf_multiqc.modules.star:MultiqcModule",

@@ -7,6 +7,7 @@ from pathlib import Path
 from multiqc import config, report
 from multiqc.base_module import BaseMultiqcModule
 from multiqc.core.special_case_modules.custom_content import custom_module_classes as upstream_custom_content
+from multiqc.plots.table_object import Cell
 import yaml
 
 
@@ -78,6 +79,28 @@ def _stage_scatter_inputs():
         ]
 
 
+def _preserve_general_stats_text(sections):
+    """Honor GCF's plain-text format without disabling numeric metric parsing."""
+    for section in sections:
+        columns = {
+            key
+            for key, header in report.general_stats_headers[section].items()
+            if header.get("format") == "{}" and not header.get("modify")
+        }
+        for rows in report.general_stats_data[section].values():
+            for row in rows:
+                for key in columns & row.data.keys():
+                    value = row.data[key]
+                    if isinstance(value, str) and value.strip():
+                        # General Statistics reparses strings as numbers even with
+                        # format="{}". Upstream Cell bypasses that coercion and its
+                        # report exporter preserves Cell.raw as the original value.
+                        # Character references also protect punctuation from the
+                        # renderer's unconditional numeric locale substitutions.
+                        literal_html = "".join(f"&#{ord(character)};" for character in value)
+                        row.data[key] = Cell(raw=value, mod=value, fmt=literal_html)
+
+
 def custom_module_classes():
     # GCF's historical custom-content reader did not clean sample-key dictionaries.
     # Scope this compatibility behavior to custom content; standard tool parsers
@@ -87,9 +110,12 @@ def custom_module_classes():
     custom_files = report.files.get("custom_content")
     config.fn_clean_sample_names = False
     config.custom_data = deepcopy(custom_data)
+    previous_sections = set(report.general_stats_data)
     try:
         _stage_scatter_inputs()
-        return upstream_custom_content()
+        modules = upstream_custom_content()
+        _preserve_general_stats_text(report.general_stats_data.keys() - previous_sections)
+        return modules
     finally:
         config.fn_clean_sample_names = clean_names
         config.custom_data = custom_data

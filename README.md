@@ -1,7 +1,7 @@
 # GCF MultiQC extensions
 
 `gcf-multiqc` moves GCF reporting extensions out of the old MultiQC fork into an
-installable plugin for **upstream MultiQC 1.35**. Version **0.1.0rc1** is a
+installable plugin for **upstream MultiQC 1.35**. Version **0.1.0rc2** is a
 candidate for evaluating the existing GCF report commands. It has not been
 deployed in BFQ or the scientific workflows.
 
@@ -27,8 +27,8 @@ to [gcf-docker/gcf-multiqc](https://github.com/gcfntnu/gcf-docker/tree/multiqc/u
 The published image digest is
 `sha256:5b69b8bdb2b8d055b190386110c55dcddc99e1e30b6ee846477a703b5c8dd39d`,
 with plugin runtime source `54877b7335635005af113a1a0cd10a9f7fbdfe12`,
-MultiQC 1.35 and Plotly 6.0.1. Subsequent suite-readiness changes add tests and
-documentation only; they do not require rebuilding this runtime.
+MultiQC 1.35 and Plotly 6.0.1. Source release **0.1.0rc2** requires a new image:
+the rc1 image does not contain the General Statistics metadata correction below.
 The image provides `multiqc` on PATH and `/opt/images/logo_ntnu.png`, and has no
 forced entry point. It is suitable for explicit Docker commands and later
 evaluation with the suite's existing Apptainer wrapper. Image publication does
@@ -62,7 +62,14 @@ BFQ owns a `multiqc` container wrapper with the same command name.
 | `unitas` | Annotation composition, sequence lengths and miRNA detection. |
 | `bracken` | Separate Bracken report identity using upstream Kraken's parser. Filename-based discovery keeps estimated counts separate from Kraken observations. |
 | Custom content | Literal sample IDs preserved, including leading zeros and filename-like identifiers. Existing PCA/UMAP data are adapted in memory to upstream plotting. |
-| Other standard modules | Upstream implementations, including BCL Convert, bcl2fastq and InterOp. |
+| BCL Convert | Upstream parser/plots with additive sample/lane chunks for multiple index rows; weighted quality and distinct index sequences are retained. |
+| Other standard modules | Upstream implementations, including bcl2fastq and InterOp. |
+
+Custom General Statistics columns with GCF's plain-text `format: '{}'` preserve
+string values such as `0007`, `NA` and `NaN` in the rendered HTML and TSV/JSON
+exports. Text is escaped for HTML. Actual numeric values and columns with numeric
+formats retain upstream numeric parsing and formatting; absent values remain
+absent. This correction is tracked in [issue #3](https://github.com/gcfntnu/gcf-multiqc/issues/3).
 
 Acceptance prioritizes active workflow families, Parse, Cell Ranger count and
 sequencing reports. QIIME2 and legacy mkfastq are deprecated for suite migration;
@@ -77,7 +84,7 @@ reports without unclassified reads remain Kraken reports. Selecting only
 `kraken` retains upstream's ability to parse either report format.
 
 `gcf_compatibility: true` is the default. It deterministically substitutes GCF
-adapters for `cellranger`, `fastp`, `star`, and `custom_content` through supported
+adapters for `bclconvert`, `cellranger`, `fastp`, `star`, and `custom_content` through supported
 configuration hooks, and restores the historical filename-cleaning suffixes.
 It does not register competing entry points with those upstream names.
 
@@ -111,6 +118,11 @@ Compatibility does not preserve known numerical defects:
   points. Parse, STARsolo and mkfastq fractions retain their historical scale.
 - PCA/UMAP tooltips identify samples, preserve group membership and colors,
   and use the selected component axes. Existing coordinates are not recomputed.
+- BCL Convert sample/lane chunks sum all index rows rather than retaining only
+  the last row. Counts-per-lane plots agree with sample totals, modern and older
+  quality metrics retain their weights, and index labels list all distinct
+  sequences. Colliding lane names across sequencing runs include the run ID.
+  See [issue #4](https://github.com/gcfntnu/gcf-multiqc/issues/4).
 
 Reports use upstream's modern presentation. Pixel-for-pixel equivalence with
 the fork's old template is not a target. The unused legacy template and `fastv`

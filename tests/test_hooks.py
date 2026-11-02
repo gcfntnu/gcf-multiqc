@@ -23,7 +23,7 @@ ALIASES = {"gcf_fastp", "gcf_star", "gcf_cellranger_mkfastq"}
 def isolated_hook_config(monkeypatch):
     native = {
         name: EntryPoint(name=name, value=f"multiqc.modules.{name}.{name}:MultiqcModule", group="multiqc.modules.v1")
-        for name in ("fastp", "star", "cellranger")
+        for name in ("fastp", "star", "cellranger", "bclconvert")
     }
     native["custom_content"] = EntryPoint(
         name="custom_content",

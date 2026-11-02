@@ -1,5 +1,6 @@
 """Exercise the existing seven report selections without running any workflow."""
 
+import csv
 import json
 import os
 from pathlib import Path
@@ -23,7 +24,7 @@ PROFILES = {
 
 
 @pytest.mark.parametrize("profile", PROFILES)
-def test_existing_workflow_profile_accepts_legacy_selection(tmp_path, profile):
+def test_existing_workflow_profile_accepts_legacy_selection(tmp_path, profile, general_stats_cells):
     inputs = tmp_path / "inputs"
     shutil.copytree(FIXTURES / "compatibility", inputs)
     custom_fixtures = {
@@ -79,6 +80,19 @@ def test_existing_workflow_profile_accepts_legacy_selection(tmp_path, profile):
     assert "fastqc_rnaseq" not in data["report_general_stats_data"]
     if "custom_content" in PROFILES[profile].split(","):
         assert data["report_general_stats_data"]["custom_content"]["Synthetic"]["External_ID"] == "0007"
+        assert (
+            data["report_saved_raw_data"]["multiqc_general_stats"]["Synthetic"]["custom_content_gcf-External_ID"]
+            == "0007"
+        )
+        assert (
+            general_stats_cells((output / "multiqc_report.html").read_text(), "custom_content_gcf-External_ID")[
+                "Synthetic"
+            ]
+            == "0007"
+        )
+        with (output / "multiqc_data/multiqc_general_stats.txt").open() as handle:
+            rows = {row["Sample"]: row for row in csv.DictReader(handle, delimiter="\t")}
+        assert rows["Synthetic"]["custom_content_gcf-External_ID"] == "0007"
     raw = data["report_saved_raw_data"]
     if profile == "microbiome":
         assert raw["multiqc_qiime2_dada2"]["Total"]["001"]["passed"] == 105

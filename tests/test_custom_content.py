@@ -1,8 +1,10 @@
+import csv
 import json
 from pathlib import Path
 import subprocess
 import sys
 
+import pytest
 import yaml
 
 
@@ -89,9 +91,25 @@ def test_scatter_explicit_legend_preference_is_preserved():
     assert adapt_scatter(content)["pconfig"]["showlegend"] is False
 
 
-def test_generalstats_preserves_text_metadata(tmp_path):
-    data = {"001": {"External_ID": "0007", "Concentration": "<1"}, "1": {"External_ID": "NA", "Concentration": 12.35}}
+@pytest.mark.parametrize("source", ["config", "file"])
+def test_generalstats_preserves_text_metadata(tmp_path, general_stats_cells, source):
+    identifiers = {
+        "001": "0007",
+        "1": "NA",
+        "2": "NaN",
+        "3": "nan",
+        "4": "None",
+        "5": "<b>007</b>",
+        "6": "0007.02,003",
+        "7": "DECIMAL",
+    }
+    data = {sample: {"External_ID": identifier, "Reads": "1234"} for sample, identifier in identifiers.items()}
+    data["001"]["Concentration"] = "<1"
+    data["1"]["Concentration"] = 12.35
+    data["missing"] = {"External_ID": None, "Concentration": 0, "Reads": 0}
     config = {
+        "decimalPoint_format": ",",
+        "thousandsSep_format": ".",
         "custom_data": {
             "general_statistics": {
                 "plot_type": "generalstats",
@@ -99,13 +117,36 @@ def test_generalstats_preserves_text_metadata(tmp_path):
                     {
                         "External_ID": {"namespace": "gcf", "format": "{}"},
                         "Concentration": {"namespace": "gcf", "format": "{}"},
+                        "Reads": {"namespace": "gcf", "format": "{:,.0f}"},
                     }
                 ],
                 "data": data,
             }
-        }
+        },
     }
-    report = render(
-        tmp_path, {"id": "summary", "section_name": "Summary", "plot_type": "html", "data": "<p>Synthetic</p>"}, config
-    )
+    content = {"id": "summary", "section_name": "Summary", "plot_type": "html", "data": "<p>Synthetic</p>"}
+    if source == "file":
+        content = {"id": "general_statistics", **config["custom_data"]["general_statistics"]}
+        content["headers"] = content.pop("pconfig")[0]
+        config = {"decimalPoint_format": ",", "thousandsSep_format": "."}
+    report = render(tmp_path, content, config)
     assert report["report_general_stats_data"]["custom_content"] == data
+    exported = report["report_saved_raw_data"]["multiqc_general_stats"]
+    for sample, identifier in identifiers.items():
+        assert exported[sample]["custom_content_gcf-External_ID"] == identifier
+        assert exported[sample]["custom_content_gcf-Reads"] == 1234
+    assert "custom_content_gcf-External_ID" not in exported["missing"]
+    assert exported["missing"]["custom_content_gcf-Concentration"] == 0
+    assert exported["1"]["custom_content_gcf-Concentration"] == 12.35
+    assert exported["001"]["custom_content_gcf-Concentration"] == "<1"
+
+    html = (tmp_path / "out/multiqc_report.html").read_text()
+    cells = general_stats_cells(html, "custom_content_gcf-External_ID")
+    assert {sample: cells[sample] for sample in identifiers} == identifiers
+    assert "<b>007</b>" not in html
+    assert general_stats_cells(html, "custom_content_gcf-Concentration")["1"] == "12,35"
+
+    with (tmp_path / "out/multiqc_data/multiqc_general_stats.txt").open() as handle:
+        rows = {row["Sample"]: row for row in csv.DictReader(handle, delimiter="\t")}
+    assert {sample: rows[sample]["custom_content_gcf-External_ID"] for sample in identifiers} == identifiers
+    assert rows["missing"]["custom_content_gcf-External_ID"] == ""
