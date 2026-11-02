@@ -12,7 +12,11 @@ import yaml
 
 def adapt_scatter(content):
     """Translate the existing GCF PCA/UMAP convention without recalculating data."""
-    if not isinstance(content, dict) or content.get("plot_type") != "scatter" or content.get("id") not in {"pca", "umap"}:
+    if (
+        not isinstance(content, dict)
+        or content.get("plot_type") != "scatter"
+        or content.get("id") not in {"pca", "umap"}
+    ):
         return None
     content = deepcopy(content)
     data = content.get("data", {})
@@ -33,8 +37,11 @@ def adapt_scatter(content):
         pconfig.update(id="umap_scatter", title="UMAP", xlab="UMAP1", ylab="UMAP2")
         for index, label in enumerate(pconfig.get("data_labels", [])):
             if isinstance(label, dict):
-                label.update(name=f"UMAP{2 * index + 1} vs UMAP{2 * index + 2}",
-                             xlab=f"UMAP{2 * index + 1}", ylab=f"UMAP{2 * index + 2}")
+                label.update(
+                    name=f"UMAP{2 * index + 1} vs UMAP{2 * index + 2}",
+                    xlab=f"UMAP{2 * index + 1}",
+                    ylab=f"UMAP{2 * index + 2}",
+                )
     # Do not copy the fixed PC1/PC2 tooltip onto every component pair.
     pconfig.pop("tt_label", None)
     return content
@@ -65,8 +72,9 @@ def _stage_scatter_inputs():
             for sample in dataset:
                 scanner.add_data_source(item, s_name=str(sample), section=section)
     if selected:
-        report.files["custom_content"] = [item for item in report.files.get("custom_content", [])
-                                           if (item["root"], item["fn"]) not in selected]
+        report.files["custom_content"] = [
+            item for item in report.files.get("custom_content", []) if (item["root"], item["fn"]) not in selected
+        ]
 
 
 def custom_module_classes():

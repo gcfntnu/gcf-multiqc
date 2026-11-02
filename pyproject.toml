@@ -10,7 +10,9 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = "GPL-3.0-or-later"
 license-files = ["LICENSE"]
-dependencies = ["multiqc==1.35"]
+# MultiQC 1.35 bundles Kaleido 0.2.1. Plotly >=6.1 dropped that exporter.
+# Upstream's subsequent dependency cap is required for large/flat reports.
+dependencies = ["multiqc==1.35", "plotly>=5.18,<6.1"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<10", "build>=1,<2", "ruff>=0.14,<1"]

@@ -1,4 +1,5 @@
 """Keep all local report tests offline, including their Python subprocesses."""
+
 import os
 from pathlib import Path
 import sys
