@@ -115,12 +115,18 @@ project profiles. All 35 FastQC archive identities, 630 basic/status fields and
 and non-FastQC exports/plots remain unchanged from rc2. Eleven reports passed
 offline browser checks across the project and earlier sequencing/Parse sets.
 
-The rc2 seven-fixture scientific/operational run passed, but the subsequent
-project comparisons identified the FastQC mate loss described above. A fresh
-seven-fixture run with final rc4 is being started for complete acceptance. Server acceptance includes scientific outputs, reporting, archives,
-checksums, snapshots, restart behavior and configured test SMTP, with report
-content checked separately against source inputs and the legacy engine.
-Final results will be recorded in the coordinated image validation receipt.
+The final fresh rc4 suite passed all seven fixtures on their first attempt in
+52m44s. Scientific/operational checks, archives, checksums, snapshots, native BCL,
+Parse, matrices, configured test SMTP and restart checks passed. All eight fresh
+project reports and seven sequencing reports passed source/content checks.
+Server/local rc4 data and plot models agree; legacy differences are classified.
+Browsers rendered 87 native charts, 24 tables, three PCA views and five embedded
+ordination views without errors. Mailbox receipt was not independently observed.
+
+The earlier rc2 scientific/operational run passed, but deeper comparisons found
+its FastQC mate loss; it did not establish final functional acceptance. The
+coordinated [image receipt](https://github.com/gcfntnu/gcf-docker/blob/multiqc/upstream-plugin-candidate/gcf-multiqc/VALIDATION-RC4.md)
+records the final artifact, checks and limits.
 
 ## Review and adoption
 

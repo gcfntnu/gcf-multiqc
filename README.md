@@ -2,7 +2,7 @@
 
 `gcf-multiqc` moves GCF reporting extensions out of the old MultiQC fork into an
 installable plugin for **upstream MultiQC 1.35**. Version **0.1.0rc4** is a
-candidate for evaluating the existing GCF report commands. It is undergoing
+candidate for evaluating the existing GCF report commands. It passed fresh
 BFQ/workflow integration acceptance; production adoption remains pending.
 
 The first release prioritizes compatibility with the report inputs and module
