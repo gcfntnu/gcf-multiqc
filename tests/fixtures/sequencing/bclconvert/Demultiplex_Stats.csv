@@ -1,0 +1,4 @@
+Lane,SampleID,Index,# Reads,# Perfect Index Reads,# One Mismatch Index Reads
+1,s1,AAAA+CCCC,1,1,0
+1,s2,GGGG+TTTT,0,0,0
+1,Undetermined,,9999,0,0

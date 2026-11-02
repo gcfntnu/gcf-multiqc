@@ -1,0 +1,104 @@
+{
+  "RunId": "260101_SYNTHETIC_0001_TEST",
+  "ConversionResults": [
+    {
+      "LaneNumber": 1,
+      "TotalClustersPF": 100,
+      "DemuxResults": [
+        {
+          "SampleId": "s1",
+          "SampleName": "first",
+          "NumberReads": 75,
+          "Yield": 22650,
+          "IndexMetrics": [
+            {
+              "MismatchCounts": {
+                "0": 75
+              }
+            }
+          ],
+          "ReadMetrics": [
+            {
+              "ReadNumber": 1,
+              "Yield": 11325,
+              "YieldQ30": 10500,
+              "QualityScoreSum": 396375,
+              "TrimmedBases": 0
+            },
+            {
+              "ReadNumber": 2,
+              "Yield": 11325,
+              "YieldQ30": 10500,
+              "QualityScoreSum": 396375,
+              "TrimmedBases": 0
+            }
+          ]
+        },
+        {
+          "SampleId": "s2",
+          "SampleName": "second",
+          "NumberReads": 0,
+          "Yield": 0,
+          "IndexMetrics": [
+            {
+              "MismatchCounts": {
+                "0": 0
+              }
+            }
+          ],
+          "ReadMetrics": [
+            {
+              "ReadNumber": 1,
+              "Yield": 0,
+              "YieldQ30": 0,
+              "QualityScoreSum": 0,
+              "TrimmedBases": 0
+            },
+            {
+              "ReadNumber": 2,
+              "Yield": 0,
+              "YieldQ30": 0,
+              "QualityScoreSum": 0,
+              "TrimmedBases": 0
+            }
+          ]
+        }
+      ],
+      "Undetermined": {
+        "NumberReads": 25,
+        "Yield": 7550,
+        "IndexMetrics": [
+          {
+            "MismatchCounts": {
+              "0": 25
+            }
+          }
+        ],
+        "ReadMetrics": [
+          {
+            "ReadNumber": 1,
+            "Yield": 3775,
+            "YieldQ30": 3500,
+            "QualityScoreSum": 132125,
+            "TrimmedBases": 0
+          },
+          {
+            "ReadNumber": 2,
+            "Yield": 3775,
+            "YieldQ30": 3500,
+            "QualityScoreSum": 132125,
+            "TrimmedBases": 0
+          }
+        ]
+      }
+    }
+  ],
+  "UnknownBarcodes": [
+    {
+      "Lane": 1,
+      "Barcodes": {
+        "ATGC+ATGC": 20
+      }
+    }
+  ]
+}
