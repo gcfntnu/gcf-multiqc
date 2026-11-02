@@ -1,0 +1,23 @@
+Number of input reads | 100
+Average input read length | 75
+Uniquely mapped reads number | 50
+Uniquely mapped reads % | 50.00%
+Average mapped length | 74
+Number of splices: Total | 120
+Number of splices: Annotated (sjdb) | 90
+Number of splices: GT/AG | 100
+Number of splices: GC/AG | 10
+Number of splices: AT/AC | 5
+Number of splices: Non-canonical | 5
+Mismatch rate per base, % | 0.10%
+Deletion rate per base | 0.00%
+Deletion average length | 0
+Insertion rate per base | 0.00%
+Insertion average length | 0
+Number of reads mapped to multiple loci | 20
+% of reads mapped to multiple loci | 20.00%
+Number of reads mapped to too many loci | 10
+% of reads mapped to too many loci | 10.00%
+% of reads unmapped: too many mismatches | 0.00%
+% of reads unmapped: too short | 20.00%
+% of reads unmapped: other | 0.00%

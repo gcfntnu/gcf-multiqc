@@ -1,0 +1,34 @@
+{
+  "command": "fastp -i Synthetic_R1.fastq.gz -o Synthetic.trimmed.fastq.gz",
+  "summary": {
+    "fastp_version": "0.23.4",
+    "before_filtering": {
+      "total_reads": 1000,
+      "total_bases": 75000,
+      "q20_bases": 73500,
+      "q30_bases": 72000,
+      "q20_rate": 0.98,
+      "q30_rate": 0.96,
+      "read1_mean_length": 75,
+      "gc_content": 0.5
+    },
+    "after_filtering": {
+      "total_reads": 800,
+      "total_bases": 56000,
+      "q20_bases": 55440,
+      "q30_bases": 54880,
+      "q20_rate": 0.99,
+      "q30_rate": 0.98,
+      "read1_mean_length": 70,
+      "gc_content": 0.5
+    }
+  },
+  "filtering_result": {
+    "passed_filter_reads": 800,
+    "low_quality_reads": 100,
+    "too_many_N_reads": 20,
+    "too_short_reads": 80
+  },
+  "duplication": {"rate": 0.1},
+  "adapter_cutting": {"adapter_trimmed_reads": 100, "adapter_trimmed_bases": 5000}
+}
