@@ -133,4 +133,4 @@ publishing another candidate.
 ## Licensing
 
 GPL-3.0-or-later. The extension preserves attribution to the original MultiQC
-and GCF work; see [NOTICE](NOTICE) and [LICENSE](LICENSE).
+and GCF work; see [NOTICE](NOTICE.md) and [LICENSE](LICENSE).
