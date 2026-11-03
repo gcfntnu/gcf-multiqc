@@ -1,0 +1,6 @@
+<RunInfo><Run Id="260101_SYNTHETIC_0001_TEST"><Reads>
+<Read Number="1" NumCycles="151" IsIndexedRead="N"/>
+<Read Number="2" NumCycles="8" IsIndexedRead="Y"/>
+<Read Number="3" NumCycles="8" IsIndexedRead="Y"/>
+<Read Number="4" NumCycles="151" IsIndexedRead="N"/>
+</Reads></Run></RunInfo>

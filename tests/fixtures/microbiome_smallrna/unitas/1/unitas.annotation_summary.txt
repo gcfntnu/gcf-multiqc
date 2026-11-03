@@ -1,0 +1,4 @@
+miRNA	20
+rRNA	150
+unknown category one	10
+unknown category two	20

@@ -1,0 +1,23 @@
+# Version: v1.5.0
+Level,Yield,Projected Yield,Aligned,Error Rate,Intensity C1,%>=Q30
+Read 1,15.1,15.1,1.2,0.2,200,94
+Read 2 (I),0.8,0.8,0,0,100,90
+Read 3 (I),0.8,0.8,0,0,100,90
+Read 4,15.1,15.1,1.3,0.2,200,93
+Non-indexed,30.2,30.2,1.2,0.2,200,93.5
+Total,31.8,31.8,1.2,0.2,200,93.2
+
+Read 1
+Lane,Surface,Tiles,Density,Cluster PF,Reads,Aligned,%>=Q30
+1,-,10,1000 +/- 20,85.5 +/- 1,100,1.2 +/- 0.1,94
+1,1,5,900 +/- 20,85.5 +/- 1,50,1.2 +/- 0.1,20
+Read 2 (I)
+Lane,Surface,Tiles,Density,Cluster PF,Reads,Aligned,%>=Q30
+1,-,10,1000 +/- 20,85.5 +/- 1,100,0,90
+Read 3 (I)
+Lane,Surface,Tiles,Density,Cluster PF,Reads,Aligned,%>=Q30
+1,-,10,1000 +/- 20,85.5 +/- 1,100,0,90
+Read 4
+Lane,Surface,Tiles,Density,Cluster PF,Reads,Aligned,%>=Q30
+1,-,10,1000 +/- 20,85.5 +/- 1,100,1.3 +/- 0.1,93
+Extracted: 318

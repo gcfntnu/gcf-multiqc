@@ -1,0 +1,35 @@
+parse:
+  - fn: agg_sample_summary.csv
+  - fn: '*.agg_sample_summary.csv'
+  - fn: agg_samp_ana_summary.csv
+  - fn: '*.agg_samp_ana_summary.csv'
+starsolo:
+  - fn: '*_Summary.csv'
+    contents: 'Number of Reads'
+cellranger_count:
+  - fn: '*.metrics_summary.csv'
+    contents: 'Estimated Number of Cells'
+  - fn: metrics_summary.csv
+    contents: 'Estimated Number of Cells'
+cellranger/mkfastq:
+  fn: qc_summary.json
+  contents: '10x_software_version'
+  shared: true
+gcf_cellranger_mkfastq/mkfastq:
+  fn: qc_summary.json
+  contents: '10x_software_version'
+  shared: true
+qiime2/dada2:
+  fn: metadata.tsv
+  contents: 'percentage of input non-chimeric'
+  num_lines: 2
+qiime2/taxonomy:
+  fn: 'level-*.csv'
+qiime2/rpca:
+  fn: ordination_samples.txt
+unitas/annotation:
+  fn: unitas.annotation_summary.txt
+unitas/seqlen:
+  fn: 'unitas.*.info'
+unitas/mirna:
+  fn: 'miR-table_*.simplified.txt'

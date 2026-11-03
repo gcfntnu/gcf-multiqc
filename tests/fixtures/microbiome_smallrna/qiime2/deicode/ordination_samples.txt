@@ -1,0 +1,11 @@
+Eigvals	3
+0.6	0.3	0.1
+
+Site	2	3
+001	-0.5	0.25	0.1
+NA	0.5	-0.25	-0.1
+
+Samples:
+Sample_ID	Sample_Group
+001	group one
+NA	group two

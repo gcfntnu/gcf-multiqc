@@ -1,0 +1,27 @@
+##FastQC	0.12.1
+>>Basic Statistics	pass
+#Measure	Value
+Filename	Synthetic_R1.fastq.gz
+File type	Conventional base calls
+Encoding	Sanger / Illumina 1.9
+Total Sequences	1000
+Total Bases	75000
+Sequences flagged as poor quality	0
+Sequence length	75
+%GC	50
+>>END_MODULE
+>>Per base sequence content	pass
+#Base	G	A	T	C
+1	25	25	25	25
+2	25	25	25	25
+>>END_MODULE
+>>Per sequence GC content	pass
+#GC Content	Count
+0	0
+50	1000
+100	0
+>>END_MODULE
+>>Sequence Length Distribution	pass
+#Length	Count
+75	1000
+>>END_MODULE
