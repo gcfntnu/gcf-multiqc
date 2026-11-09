@@ -53,7 +53,7 @@ BFQ owns a `multiqc` container wrapper with the same command name.
 | Existing selection / behavior | Candidate implementation |
 | --- | --- |
 | `fastqc_rnaseq` | Upstream FastQC parsing and plots, separate paired-mate identities, historical section IDs, no FastQC General Statistics columns. |
-| `fastp` | Upstream parser/plots; retain input read count and GCF survival percentage column identity. |
+| `fastp` | Upstream parser/plots except overrepresented-sequence summaries; retain input read count and GCF survival percentage column identity. |
 | `star` | Upstream parser; preserve GCF column keys with explicit aligned-read and splice-event meanings. |
 | `cellranger` | Historical GCF mkfastq `qc_summary.json` adapter. This selector means mkfastq in compatibility mode. |
 | `cellranger_count` | Historical count `*.metrics_summary.csv` adapter, with normalized numeric exports. |
@@ -71,6 +71,17 @@ string values such as `0007`, `NA` and `NaN` in the rendered HTML and TSV/JSON
 exports. Text is escaped for HTML. Actual numeric values and columns with numeric
 formats retain upstream numeric parsing and formatting; absent values remain
 absent. This correction is tracked in [issue #3](https://github.com/gcfntnu/gcf-multiqc/issues/3).
+
+GCF fastp reports omit the **Overrepresented sequences by sample** chart and
+**Top overrepresented sequences** table. Fastp's sampled motif occurrences do
+not directly describe whole-read abundance, and upstream's aggregation of read
+ends and before/after filtering counts can be misleading. The remaining fastp
+QC plots and General Statistics are retained. Original fastp JSON and HTML
+reports and the `multiqc_fastp` raw-data exports remain available, including the
+motif counts. This applies to the default `fastp` compatibility selection and
+the explicit `gcf_fastp` alias. Native `fastp` with `gcf_compatibility: false`
+retains upstream's displays. FastQC overrepresented-sequence reporting is
+unchanged. See [issue #7](https://github.com/gcfntnu/gcf-multiqc/issues/7).
 
 Acceptance prioritizes active workflow families, Parse, Cell Ranger count and
 sequencing reports. QIIME2 and legacy mkfastq are deprecated for suite migration;

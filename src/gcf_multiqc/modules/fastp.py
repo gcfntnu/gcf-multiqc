@@ -1,10 +1,14 @@
-"""GCF summary-column compatibility over the upstream fastp parser."""
+"""GCF report presentation over the upstream fastp parser."""
 
 from multiqc.modules.fastp.fastp import MultiqcModule as NativeFastp
 
 
 class MultiqcModule(NativeFastp):
-    """Retain GCF's pre-filter read count and percent-passing-filter column IDs."""
+    """Retain GCF summary columns and omit sampled motif summaries."""
+
+    def fastp_overrepresented_sequences_plot(self):
+        """Keep the raw motif counts without building misleading summary displays."""
+        return None
 
     def find_log_files(self, sp_key, *args, **kwargs):
         if self.id == "gcf_fastp" and sp_key == "fastp":

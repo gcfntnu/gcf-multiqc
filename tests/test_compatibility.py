@@ -228,6 +228,57 @@ def test_fastp_zero_input_has_no_invented_passing_percentage(tmp_path):
     assert "pct_surviving" not in values
 
 
+@pytest.mark.parametrize(
+    ("selector", "compatibility", "hidden"),
+    [("fastp", True, True), ("gcf_fastp", True, True), ("gcf_fastp", False, True), ("fastp", False, False)],
+)
+def test_fastp_overrepresentation_visibility_preserves_other_qc(tmp_path, selector, compatibility, hidden):
+    payload = json.loads((FIXTURES / "Synthetic.fastp.json").read_text())
+    payload["duplication"]["histogram"] = [900, 100]
+    payload["insert_size"] = {"histogram": [0, 20, 10]}
+    for mate in (1, 2):
+        for stage, count in (("before_filtering", 11), ("after_filtering", 7)):
+            payload[f"read{mate}_{stage}"] = {
+                "quality_curves": {"mean": [35, 34]},
+                "content_curves": {"GC": [0.5, 0.4], "N": [0, 0.01]},
+                "overrepresented_sequences": {"ACGTACGTAC": count, "ACGT" * 25: count + 1},
+            }
+    fastp = tmp_path / "Synthetic.fastp.json"
+    fastp.write_text(json.dumps(payload))
+    original = fastp.read_bytes()
+    data, html, output = render(
+        tmp_path,
+        [fastp, *paired_fastqc_archives(tmp_path)],
+        [selector, "fastqc_rnaseq"],
+        {"gcf_compatibility": compatibility},
+    )
+    for anchor in (
+        "fastp-overrepresented-sequences",
+        "fastp_overrepresented_sequences",
+        "fastp_top_overrepresented_sequences",
+    ):
+        if hidden:
+            assert f'id="{anchor}"' not in html
+        elif anchor != "fastp-overrepresented-sequences":
+            assert f'id="{anchor}"' in html
+    for plot in ("fastp_overrepresented_sequences_plot", "fastp_top_overrepresented_sequences_table"):
+        assert (plot not in data["report_plot_data"]) == hidden
+    assert {
+        "fastp_filtered_reads_plot",
+        "fastp-duprates-plot",
+        "fastp-insert-size-plot",
+        "fastp-seq-quality-plot",
+        "fastp-seq-content-gc-plot",
+        "fastp-seq-content-n-plot",
+    } <= set(data["report_plot_data"])
+    sample = "Synthetic" if compatibility else "Synthetic_R1"
+    assert data["report_saved_raw_data"]["multiqc_fastp"][sample] == payload
+    assert (output / "multiqc_data/multiqc_fastp.txt").is_file()
+    assert fastp.read_bytes() == original
+    assert 'id="fastqc_rnaseq_overrepresented_sequences"' in html
+    assert 'id="fastqc_rnaseq_top_overrepresented_sequences"' in html
+
+
 def star_inputs(tmp_path):
     inputs = tmp_path / "inputs"
     inputs.mkdir()
