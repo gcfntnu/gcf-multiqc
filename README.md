@@ -60,7 +60,7 @@ BFQ owns a `multiqc` container wrapper with the same command name.
 | `starsolo` | GCF staged `*_Summary.csv` summaries. Plain `Solo.out/Gene/Summary.csv` is not automatically treated as a sample. |
 | `parse` | Both historical aggregate-summary CSV orientations; one summary per input library plus the separately named aggregate. |
 | `qiime2` | Exported DADA2 metadata, taxonomy CSVs and DEICODE ordination with appended sample metadata. |
-| `unitas` | Annotation composition, sequence lengths and miRNA detection. |
+| `unitas` | Annotation composition, sequence lengths and miRNA detection. Top-level classes miRNA, tRNA, rRNA, misc_RNA (shown as "misc_RNA (Y RNA, 7SK, 7SL, …)"; mostly Y RNA fragments in plasma), protein_coding, lncRNA (also Ensembl's older `lincRNA`), snoRNA and no annotation; other classes are "other". |
 | `bracken` | Separate Bracken report identity using upstream Kraken's parser. Filename-based discovery keeps estimated counts separate from Kraken observations. |
 | Custom content | Literal sample IDs preserved, including leading zeros and filename-like identifiers. Existing PCA/UMAP data are adapted in memory to upstream plotting. |
 | BCL Convert | Upstream parser/plots with additive sample/lane chunks for multiple index rows; weighted quality and distinct index sequences are retained. |
@@ -106,8 +106,10 @@ over both passes, and `--discard-trimmed` used for 5′ adapter artefacts.
 Upstream reads only *too short*, *too long* and *too many N* from the JSON report and
 shows the rest (`--discard-trimmed`, `--discard-untrimmed`, `--max-ee`, CASAVA filter)
 as **Filtered reads (uncategorised)**. This module names every category,
-`discard_trimmed` as *5′ adapter artefacts*; uncategorised remains only for counts the
-report does not explain.
+`discard_trimmed` as *5′ adapter artefacts* and the workflow's
+`gcf_three_prime_artefacts` (reads still containing 3′ adapter or primer sequence)
+as *Untrimmed 3′ adapter or primer sequence*; uncategorised remains only for counts
+the report does not explain.
 
 General Statistics show input reads (*Reads*, shared read-count scale), *% PF (Reads)*
 and *% Adapter* (3′ adapter found), with the column keys of the GCF fastp module

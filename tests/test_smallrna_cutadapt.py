@@ -263,3 +263,17 @@ print("second", second.sys_exit_code)
     assert any(line.startswith("first") and line != "first 0" for line in lines), result.stdout + result.stderr
     assert "second 0" in lines, result.stdout + result.stderr
     assert (tmp_path / "out2" / "multiqc_report.html").exists()
+
+
+def test_three_prime_artefacts_are_named(tmp_path):
+    """The workflow's third pass (gcf-workflows#353): its discards as their own category, adding up to the input."""
+    payload = merged_report()
+    payload["read_counts"]["filtered"]["gcf_three_prime_artefacts"] = 10
+    payload["read_counts"]["output"] -= 10
+    write(tmp_path / "inputs", "Synthetic.cutadapt.json", payload)
+    data, _, _ = render(tmp_path, tmp_path / "inputs", MODULE)
+    raw = data["report_saved_raw_data"]["multiqc_cutadapt"]["Synthetic"]
+    assert raw["r_gcf_three_prime_artefacts"] == 10 and "r_filtered_unexplained" not in raw
+    assert sum(raw.get(key) or 0 for key in [*CATEGORIES, "r_gcf_three_prime_artefacts"]) == raw["r_processed"]
+    names = category_names(data)
+    assert "Untrimmed 3′ adapter or primer sequence" in names and "5′ adapter artefacts" in names
