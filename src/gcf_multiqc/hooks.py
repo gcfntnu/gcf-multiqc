@@ -75,6 +75,13 @@ def config_loaded():
     log.info("GCF compatibility enabled (gcf-multiqc); upstream engine %s", config.version)
 
 
+def before_modules():
+    """Start each run without small-RNA cutadapt input errors from an earlier run in the same process."""
+    from gcf_multiqc.modules import smallrna_cutadapt
+
+    smallrna_cutadapt.INPUT_ERRORS.clear()
+
+
 def after_modules():
     """Fail the run on invalid small-RNA cutadapt input, also without --strict, before a report is written."""
     from multiqc.core.exceptions import RunError

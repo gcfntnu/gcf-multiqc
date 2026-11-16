@@ -204,3 +204,62 @@ def test_zero_input_has_no_invented_percentages(tmp_path):
     write(tmp_path / "inputs", "Synthetic.cutadapt.json", payload)
     data, _, _ = render(tmp_path, tmp_path / "inputs", MODULE)
     assert data["report_general_stats_data"]["cutadapt"]["Synthetic"] == {"before_filtering_total_reads": 0}
+
+
+def test_errors_are_kept_across_repeated_module_instances(tmp_path):
+    """A later valid instance of the module must not clear an earlier instance's error."""
+    folder = tmp_path / "inputs"
+    paired = merged_report()
+    paired["input"].update(paired=True, path2="Synthetic_R2.fastq")
+    write(folder / "bad", "Synthetic.cutadapt.json", paired)
+    second = merged_report()
+    second["input"]["path1"] = "Second.fastq"
+    write(folder / "good", "Second.cutadapt.json", second)
+    instances = [
+        {"gcf_smallrna_cutadapt": {"name": "Cutadapt A", "anchor": "cutadapt_a", "path_filters": ["*/bad/*"]}},
+        {"gcf_smallrna_cutadapt": {"name": "Cutadapt B", "anchor": "cutadapt_b", "path_filters": ["*/good/*"]}},
+    ]
+    (tmp_path / "config.yaml").write_text(json.dumps({"module_order": instances}))
+    output = tmp_path / "output"
+    command = [sys.executable, "-m", "multiqc", str(folder), "-c", str(tmp_path / "config.yaml"), "-o", str(output)]
+    command += ["--no-version-check", "--no-ai", "--no-megaqc-upload"]
+    result = subprocess.run(
+        command, cwd=tmp_path, env={**os.environ, "TMPDIR": str(tmp_path)}, capture_output=True, text=True, timeout=60
+    )
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "Paired-end report" in result.stdout + result.stderr
+    assert not (output / "multiqc_report.html").exists()
+
+
+def test_a_failed_run_does_not_fail_the_next_run_in_the_same_process(tmp_path):
+    """Errors are reset per run: a strict failure must not leak into a later run without this module."""
+    paired = merged_report()
+    paired["input"].update(paired=True, path2="Synthetic_R2.fastq")
+    write(tmp_path / "bad", "Synthetic.cutadapt.json", paired)
+    write(tmp_path / "fastp", "Synthetic.fastp.json", json.loads(FASTP.read_text()))
+    script = f"""
+import multiqc
+from multiqc.core.update_config import ClConfig
+options = dict(no_version_check=True, no_ai=True, no_megaqc_upload=True, force=True)
+try:
+    first = multiqc.run({str(tmp_path / "bad")!r}, cfg=ClConfig(strict=True, run_modules=["gcf_smallrna_cutadapt"],
+                        output_dir={str(tmp_path / "out1")!r}, **options))
+    print("first", first.sys_exit_code)
+except Exception as error:
+    print("first raised", type(error).__name__)
+second = multiqc.run({str(tmp_path / "fastp")!r}, cfg=ClConfig(run_modules=["fastp"], output_dir={str(tmp_path / "out2")!r},
+                     **options))
+print("second", second.sys_exit_code)
+"""
+    result = subprocess.run(
+        [sys.executable, "-c", script],
+        cwd=tmp_path,
+        env={**os.environ, "TMPDIR": str(tmp_path)},
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    lines = result.stdout.splitlines()
+    assert any(line.startswith("first") and line != "first 0" for line in lines), result.stdout + result.stderr
+    assert "second 0" in lines, result.stdout + result.stderr
+    assert (tmp_path / "out2" / "multiqc_report.html").exists()

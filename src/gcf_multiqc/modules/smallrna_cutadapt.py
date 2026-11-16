@@ -7,8 +7,9 @@ passes, and `--discard-trimmed` used for 5' adapter artefacts. Its search patter
 reports and text logs are never read. Reports select it explicitly (`-m gcf_smallrna_cutadapt`); selecting native
 `cutadapt` as well is an error (hooks.config_loaded), and default runs leave it out. Paired-end reports and two
 reports with one sample name raise an error. MultiQC catches module errors and, without `--strict`, still writes a
-report without the module, so the errors are also recorded here (`INPUT_ERRORS`) and the `after_modules` hook stops
-the run with exit code 1 before a report is written (hooks.after_modules).
+report without the module, so the errors are also recorded here (`INPUT_ERRORS`, kept for the whole run, also across
+repeated instances of the module) and the `after_modules` hook stops the run with exit code 1 before a report is
+written; the `before_modules` hook clears them at the start of each run.
 
 Upstream MultiQC 1.35 reads only `too_short`, `too_long` and `too_many_n` from `read_counts.filtered` and shows the
 rest as "Filtered reads (uncategorised)". This module names every JSON category, `discard_trimmed` as "5′ adapter
@@ -45,7 +46,8 @@ EXTRA_CATEGORIES = {
     "discard_untrimmed": "Reads discarded: no adapter found",
 }
 UPSTREAM_CATEGORIES = ["r_too_short", "r_too_long", "r_too_many_N"]
-# Invalid input of the current run, for hooks.after_modules (module errors alone do not fail a non-strict run).
+# Invalid input of the current MultiQC run, from every instance of the module: cleared once per run by
+# hooks.before_modules and read by hooks.after_modules (module errors alone do not fail a non-strict run).
 INPUT_ERRORS = []
 
 
@@ -59,7 +61,6 @@ class MultiqcModule(NativeCutadapt):
 
     def __init__(self):
         self.gcf_sources = {}
-        INPUT_ERRORS.clear()
         super().__init__()
 
     def find_log_files(self, sp_key, *args, **kwargs):
