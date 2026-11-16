@@ -73,3 +73,15 @@ def config_loaded():
         if extension not in config.fn_clean_exts:
             config.fn_clean_exts.append(extension)
     log.info("GCF compatibility enabled (gcf-multiqc); upstream engine %s", config.version)
+
+
+def after_modules():
+    """Fail the run on invalid small-RNA cutadapt input, also without --strict, before a report is written."""
+    from multiqc.core.exceptions import RunError
+
+    from gcf_multiqc.modules import smallrna_cutadapt
+
+    if smallrna_cutadapt.INPUT_ERRORS:
+        errors = list(smallrna_cutadapt.INPUT_ERRORS)
+        smallrna_cutadapt.INPUT_ERRORS.clear()
+        raise RunError("gcf_smallrna_cutadapt: invalid input: " + "; ".join(errors))

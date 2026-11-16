@@ -99,7 +99,9 @@ over both passes, and `--discard-trimmed` used for 5′ adapter artefacts.
 - Reports select it explicitly (`-m gcf_smallrna_cutadapt`). Selecting native
   `cutadapt` as well stops the run, because native cutadapt would take the same
   reports first. Default runs leave it out unless it is listed in `module_order`.
-- Paired-end reports and two reports with one sample name raise an error.
+- Paired-end reports and two reports with one sample name stop the run with exit
+  code 1 before a report is written, also without `--strict` (an `after_modules`
+  hook; MultiQC alone would drop the module and exit 0).
 
 Upstream reads only *too short*, *too long* and *too many N* from the JSON report and
 shows the rest (`--discard-trimmed`, `--discard-untrimmed`, `--max-ee`, CASAVA filter)

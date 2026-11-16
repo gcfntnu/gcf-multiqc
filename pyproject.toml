@@ -36,6 +36,7 @@ gcf_smallrna_cutadapt = "gcf_multiqc.modules.smallrna_cutadapt:MultiqcModule"
 [project.entry-points."multiqc.hooks.v1"]
 before_config = "gcf_multiqc.hooks:before_config"
 config_loaded = "gcf_multiqc.hooks:config_loaded"
+after_modules = "gcf_multiqc.hooks:after_modules"
 
 [tool.setuptools.packages.find]
 where = ["src"]

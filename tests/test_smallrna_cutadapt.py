@@ -9,8 +9,11 @@ reports the module must not read.
 """
 
 import json
+import os
 from pathlib import Path
 import shutil
+import subprocess
+import sys
 
 import pytest
 
@@ -18,6 +21,7 @@ from test_compatibility import render, rendered_columns
 
 FIXTURES = Path(__file__).parent / "fixtures" / "cutadapt"
 MODULE = ["gcf_smallrna_cutadapt"]
+FASTP = Path(__file__).parent / "fixtures" / "compatibility" / "Synthetic.fastp.json"
 
 CATEGORIES = [
     "r_written",
@@ -136,6 +140,47 @@ def test_duplicate_sample_names_fail(tmp_path):
 def test_selecting_native_cutadapt_too_fails(tmp_path):
     with pytest.raises(AssertionError, match="Select cutadapt or gcf_smallrna_cutadapt, not both"):
         render(tmp_path, inputs(tmp_path, "Synthetic.cutadapt.json"), ["cutadapt", *MODULE])
+
+
+def run_like_the_workflow(tmp_path, inputs_dir, modules):
+    """MultiQC as gcf-workflows runs it: without --strict or --require-logs."""
+    output = tmp_path / "output"
+    command = [sys.executable, "-m", "multiqc", str(inputs_dir), "--no-version-check", "--no-ai", "--no-megaqc-upload"]
+    command += ["-o", str(output)] + [arg for module in modules for arg in ("-m", module)]
+    result = subprocess.run(
+        command, cwd=tmp_path, env={**os.environ, "TMPDIR": str(tmp_path)}, capture_output=True, text=True, timeout=60
+    )
+    return result.returncode, result.stdout + result.stderr, output
+
+
+@pytest.mark.parametrize("case", ["duplicate", "paired"])
+def test_invalid_input_fails_a_non_strict_run_with_another_module(tmp_path, case):
+    """Without --strict MultiQC would drop the broken module and exit 0; the after_modules hook stops the run."""
+    folder = tmp_path / "inputs"
+    write(folder / "a", "Synthetic.fastp.json", json.loads(FASTP.read_text()))
+    if case == "duplicate":
+        write(folder / "b", "Synthetic.cutadapt.json", merged_report())
+        write(folder / "c", "Synthetic.cutadapt.json", merged_report())
+        message = "Duplicate small-RNA cutadapt sample 'Synthetic'"
+    else:
+        paired = merged_report()
+        paired["input"].update(paired=True, path2="Synthetic_R2.fastq")
+        write(folder / "b", "Synthetic.cutadapt.json", paired)
+        message = "Paired-end report"
+    returncode, output, report = run_like_the_workflow(tmp_path, folder, ["gcf_smallrna_cutadapt", "fastp"])
+    assert returncode == 1, output
+    assert "gcf_smallrna_cutadapt: invalid input:" in output and message in output
+    assert not (report / "multiqc_report.html").exists()
+
+
+def test_valid_input_succeeds_in_a_non_strict_run(tmp_path):
+    folder = tmp_path / "inputs"
+    write(folder / "a", "Synthetic.fastp.json", json.loads(FASTP.read_text()))
+    write(folder / "b", "Synthetic.cutadapt.json", merged_report())
+    returncode, output, report = run_like_the_workflow(tmp_path, folder, ["gcf_smallrna_cutadapt", "fastp"])
+    assert returncode == 0, output
+    data = json.loads((report / "multiqc_data" / "multiqc_data.json").read_text())
+    assert set(data["report_general_stats_data"]) == {"cutadapt", "fastp"}
 
 
 @pytest.mark.parametrize("compatibility", [True, False])
