@@ -33,3 +33,7 @@ unitas/seqlen:
   fn: 'unitas.*.info'
 unitas/mirna:
   fn: 'miR-table_*.simplified.txt'
+gcf_smallrna_cutadapt:
+  fn: '*.json'
+  contents: 'Cutadapt report, merged from the passes in gcf_passes'
+  num_lines: 5

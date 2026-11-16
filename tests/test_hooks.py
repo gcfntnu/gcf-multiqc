@@ -16,7 +16,7 @@ import yaml
 from gcf_multiqc import hooks
 
 FIXTURES = Path(__file__).parent / "fixtures"
-ALIASES = {"gcf_fastp", "gcf_star", "gcf_cellranger_mkfastq"}
+ALIASES = {"gcf_fastp", "gcf_star", "gcf_cellranger_mkfastq", "gcf_smallrna_cutadapt"}
 
 
 @pytest.fixture
@@ -199,3 +199,25 @@ def test_default_cli_honors_explicit_module_order_alias(tmp_path):
     )
     assert set(data["report_saved_raw_data"]) == {"multiqc_gcf_cellranger_mkfastq"}
     assert html.count('id="gcf_cellranger_mkfastq-mkfastq-qc"') == 1
+
+
+def test_smallrna_cutadapt_has_its_own_search_pattern(isolated_hook_config):
+    """Only merged small-RNA reports, never a copy of native cutadapt's patterns."""
+    config.sp["cutadapt"] = [{"fn": "*.json", "contents": "Cutadapt report"}]
+    hooks.before_config()
+    assert config.sp["gcf_smallrna_cutadapt"]["contents"] == "Cutadapt report, merged from the passes in gcf_passes"
+
+
+@pytest.mark.parametrize("selection", ["run_modules", "module_order"])
+def test_selecting_native_and_smallrna_cutadapt_fails(isolated_hook_config, selection):
+    setattr(config, selection, ["cutadapt", "gcf_smallrna_cutadapt"])
+    hooks.before_config()
+    with pytest.raises(ValueError, match="Select cutadapt or gcf_smallrna_cutadapt, not both"):
+        hooks.config_loaded()
+
+
+def test_smallrna_cutadapt_alone_is_accepted(isolated_hook_config):
+    config.run_modules = ["gcf_smallrna_cutadapt"]
+    hooks.before_config()
+    hooks.config_loaded()
+    assert "gcf_smallrna_cutadapt" not in config.exclude_modules

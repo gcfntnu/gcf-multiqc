@@ -46,11 +46,16 @@ def config_loaded():
                 if filename and filename not in excluded:
                     excluded.append(filename)
     # Explicit aliases are escape hatches, not additional copies in default runs.
+    ordered = {next(iter(item)) if isinstance(item, dict) else item for item in config.module_order}
     if not config.run_modules:
-        ordered = {next(iter(item)) if isinstance(item, dict) else item for item in config.module_order}
-        for alias in ["gcf_cellranger_mkfastq", "gcf_fastp", "gcf_star"]:
+        for alias in ["gcf_cellranger_mkfastq", "gcf_fastp", "gcf_star", "gcf_smallrna_cutadapt"]:
             if alias not in ordered and alias not in config.exclude_modules:
                 config.exclude_modules.append(alias)
+    # Native cutadapt also matches the small-RNA merged reports and takes them first: selecting both would report
+    # them natively without a word.
+    selected = set(config.run_modules) if config.run_modules else ordered - set(config.exclude_modules)
+    if {"cutadapt", "gcf_smallrna_cutadapt"} <= selected:
+        raise ValueError("Select cutadapt or gcf_smallrna_cutadapt, not both: native cutadapt would take the reports")
     if not getattr(config, "gcf_compatibility", True):
         return
     replacements = {
@@ -68,3 +73,22 @@ def config_loaded():
         if extension not in config.fn_clean_exts:
             config.fn_clean_exts.append(extension)
     log.info("GCF compatibility enabled (gcf-multiqc); upstream engine %s", config.version)
+
+
+def before_modules():
+    """Start each run without small-RNA cutadapt input errors from an earlier run in the same process."""
+    from gcf_multiqc.modules import smallrna_cutadapt
+
+    smallrna_cutadapt.INPUT_ERRORS.clear()
+
+
+def after_modules():
+    """Fail the run on invalid small-RNA cutadapt input, also without --strict, before a report is written."""
+    from multiqc.core.exceptions import RunError
+
+    from gcf_multiqc.modules import smallrna_cutadapt
+
+    if smallrna_cutadapt.INPUT_ERRORS:
+        errors = list(smallrna_cutadapt.INPUT_ERRORS)
+        smallrna_cutadapt.INPUT_ERRORS.clear()
+        raise RunError("gcf_smallrna_cutadapt: invalid input: " + "; ".join(errors))

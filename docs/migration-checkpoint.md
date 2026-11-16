@@ -36,7 +36,9 @@ their original contents.
 | BFQ adoption base, `bfq-dev` | `2b1fbc51f625c128e9aa5a083f1c5fe1abb06068` |
 | Docker recipe base, `master` | `28e66251ec003b0f0d65526d2fa6b8cc03ed92b3` |
 
-The seven copied public workflow templates remain unchanged. Synthetic fixtures
+The seven copied public workflow templates are unchanged, except that the smallrna
+template adds the `cutadapt` section order of gcf-workflows PR 351
+([fixtures README](../tests/fixtures/profiles/README.md)). Synthetic fixtures
 use invented sample values, and their READMEs identify source conventions.
 Private operational inputs, reports and detailed comparison evidence remain
 outside Git and published images.
