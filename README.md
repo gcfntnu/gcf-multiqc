@@ -83,6 +83,37 @@ the explicit `gcf_fastp` alias. Native `fastp` with `gcf_compatibility: false`
 retains upstream's displays. FastQC overrepresented-sequence reporting is
 unchanged. See [issue #7](https://github.com/gcfntnu/gcf-multiqc/issues/7).
 
+### Small-RNA cutadapt reports (`gcf_smallrna_cutadapt`)
+
+A new GCF module, not a compatibility adapter: native `cutadapt` stays upstream's in
+every report, also in compatibility mode. `gcf_smallrna_cutadapt` is **not a general
+cutadapt module**. It reads only the merged reports of the gcf-workflows smallrna
+cutadapt filter route
+([gcf-workflows#350](https://github.com/gcfntnu/gcf-workflows/issues/350)): one
+single-end JSON report per sample, tagged *Cutadapt report, merged from the passes in
+gcf_passes*, with input reads from the 3′ adapter pass, filtered categories summed
+over both passes, and `--discard-trimmed` used for 5′ adapter artefacts.
+
+- Its search pattern matches that tag only; per-pass reports and text logs, for
+  example in the workflow's `provenance/` folder, are never read.
+- Reports select it explicitly (`-m gcf_smallrna_cutadapt`). Selecting native
+  `cutadapt` as well stops the run, because native cutadapt would take the same
+  reports first. Default runs leave it out unless it is listed in `module_order`.
+- Paired-end reports and two reports with one sample name raise an error.
+
+Upstream reads only *too short*, *too long* and *too many N* from the JSON report and
+shows the rest (`--discard-trimmed`, `--discard-untrimmed`, `--max-ee`, CASAVA filter)
+as **Filtered reads (uncategorised)**. This module names every category,
+`discard_trimmed` as *5′ adapter artefacts*; uncategorised remains only for counts the
+report does not explain.
+
+General Statistics show input reads (*Reads*, shared read-count scale), *% PF (Reads)*
+and *% Adapter* (3′ adapter found), with the column keys of the GCF fastp module
+(`before_filtering_total_reads`, `pct_surviving`, `pct_adapter`) in the `cutadapt`
+section, so placement settings carry over under `cutadapt`. Upstream's *Trimmed bases*
+is not shown: it counts the bases of discarded reads as trimmed. See
+[issue #9](https://github.com/gcfntnu/gcf-multiqc/issues/9).
+
 Acceptance prioritizes active workflow families, Parse, Cell Ranger count and
 sequencing reports. QIIME2 and legacy mkfastq are deprecated for suite migration;
 their existing adapters remain available but are not adoption gates. STARsolo
@@ -108,8 +139,10 @@ gcf_compatibility: false
 
 The additional GCF modules remain available. Explicit selections `gcf_fastp`,
 `gcf_star`, and `gcf_cellranger_mkfastq` allow individual adapters alongside
-native modules. The mkfastq alias uses a distinct report anchor and export name;
-native `cellranger` plus this alias is tested. Select the intended count parser
+native modules. `gcf_smallrna_cutadapt` is a small-RNA module rather than an
+adapter (see above) and cannot be combined with native `cutadapt`. The mkfastq
+alias uses a distinct report anchor and export name; native `cellranger` plus
+this alias is tested. Select the intended count parser
 instead of reporting the same count run through native Cell Ranger and the GCF
 CSV adapter simultaneously. Explicit aliases are omitted from default
 all-module scans unless selected in `module_order`.
@@ -168,9 +201,9 @@ python3.11 -m venv .dev/venv
 ```
 
 Tests include real installed-MultiQC report rendering with `--strict`, numeric
-export assertions, malformed/zero/duplicate inputs, the seven unchanged public
-workflow templates, custom-content identity, and native sequencing-report
-parsers. Suite command tests cover a relative full-path `--filename`, separate
+export assertions, malformed/zero/duplicate inputs, the seven public workflow
+templates (the smallrna one with gcf-workflows PR 351's `cutadapt` section
+order), custom-content identity, and native sequencing-report parsers. Suite command tests cover a relative full-path `--filename`, separate
 log/figure inputs, BFQ sequencing tables and output paths containing spaces.
 For planned separate conversion passes, BFQ must select `custom_content` only
 once in `module_order`; repeating it creates duplicate report sections. The

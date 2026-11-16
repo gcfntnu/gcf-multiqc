@@ -16,7 +16,7 @@ PROFILES = {
     "rnaseq": "fastq_screen,star,picard,fastp,fastqc_rnaseq,salmon,rseqc,custom_content,kraken",
     "microbiome": "fastq_screen,fastp,fastqc_rnaseq,custom_content,qiime2",
     "singlecell": "cellranger,starsolo,fastp,fastqc_rnaseq,custom_content,cellranger_count,kraken,parse",
-    "smallrna": "star,picard,fastp,fastqc_rnaseq,unitas,custom_content",
+    "smallrna": "star,picard,fastp,gcf_smallrna_cutadapt,fastqc_rnaseq,unitas,mirtrace,custom_content",
     "default": "fastq_screen,fastp,fastqc_rnaseq,custom_content,kraken",
     "wgs": "fastq_screen,fastqc_rnaseq,qualimap,fastp,picard,kraken",
     "metagenome": "fastqc_rnaseq,fastp,kraken,bracken,custom_content",
@@ -35,6 +35,8 @@ def test_existing_workflow_profile_accepts_legacy_selection(tmp_path, profile, g
     }
     if profile in custom_fixtures:
         shutil.copytree(FIXTURES / custom_fixtures[profile], inputs / "specific")
+    if profile == "smallrna":  # the cutadapt route's merged report (gcf-workflows#350), gcf_smallrna_cutadapt
+        shutil.copytree(FIXTURES / "cutadapt", inputs / "cutadapt", ignore=shutil.ignore_patterns("Paired.*", "*.log"))
     config = yaml.safe_load((FIXTURES / "profiles" / f"multiqc_config-{profile}.yaml").read_text())
     config.update(
         custom_logo=str(FIXTURES / "profiles/logo_ntnu.png"),
@@ -76,6 +78,8 @@ def test_existing_workflow_profile_accepts_legacy_selection(tmp_path, profile, g
     assert result.returncode == 0, result.stdout + result.stderr
     data = json.loads((output / "multiqc_data/multiqc_data.json").read_text())
     assert data["report_general_stats_data"]["fastp"]["Synthetic"]["before_filtering_total_reads"] == 1000
+    if profile == "smallrna":
+        assert data["report_general_stats_data"]["cutadapt"]["Synthetic"]["before_filtering_total_reads"] == 1000
     assert "fastqc" not in data["report_general_stats_data"]
     assert "fastqc_rnaseq" not in data["report_general_stats_data"]
     if "custom_content" in PROFILES[profile].split(","):

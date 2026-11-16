@@ -46,11 +46,16 @@ def config_loaded():
                 if filename and filename not in excluded:
                     excluded.append(filename)
     # Explicit aliases are escape hatches, not additional copies in default runs.
+    ordered = {next(iter(item)) if isinstance(item, dict) else item for item in config.module_order}
     if not config.run_modules:
-        ordered = {next(iter(item)) if isinstance(item, dict) else item for item in config.module_order}
-        for alias in ["gcf_cellranger_mkfastq", "gcf_fastp", "gcf_star"]:
+        for alias in ["gcf_cellranger_mkfastq", "gcf_fastp", "gcf_star", "gcf_smallrna_cutadapt"]:
             if alias not in ordered and alias not in config.exclude_modules:
                 config.exclude_modules.append(alias)
+    # Native cutadapt also matches the small-RNA merged reports and takes them first: selecting both would report
+    # them natively without a word.
+    selected = set(config.run_modules) if config.run_modules else ordered - set(config.exclude_modules)
+    if {"cutadapt", "gcf_smallrna_cutadapt"} <= selected:
+        raise ValueError("Select cutadapt or gcf_smallrna_cutadapt, not both: native cutadapt would take the reports")
     if not getattr(config, "gcf_compatibility", True):
         return
     replacements = {

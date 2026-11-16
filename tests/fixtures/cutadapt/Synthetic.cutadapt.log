@@ -1,0 +1,451 @@
+This is cutadapt 5.2 with Python 3.12.13
+Command line parameters: -g file:five.fa --action=none --discard-trimmed -m 15 --max-n 5 --max-ee 1 --json filter.json -o filtered.fastq trimmed.fastq
+Processing single-end reads on 1 core ...
+
+=== Summary ===
+
+Total reads processed:                   1,000
+Reads with adapters:                       100 (10.0%)
+
+== Read fate breakdown ==
+Reads that were too short:                 150 (15.0%)
+Reads with too many N:                      30 (3.0%)
+Reads with too many exp. errors:            20 (2.0%)
+Reads discarded as trimmed:                100 (10.0%)
+Reads written (passing filters):           700 (70.0%)
+
+Total basepairs processed:        21,100 bp
+Total written (filtered):         18,200 bp (86.3%)
+
+=== Adapter five_prime_12 ===
+
+Sequence: GTTCAGAGTTCT; Type: non-internal 5'; Length: 12; Trimmed: 0 times
+
+=== Adapter five_prime_13 ===
+
+Sequence: GTTCAGAGTTCTA; Type: non-internal 5'; Length: 13; Trimmed: 0 times
+
+=== Adapter five_prime_14 ===
+
+Sequence: GTTCAGAGTTCTAC; Type: non-internal 5'; Length: 14; Trimmed: 0 times
+
+=== Adapter five_prime_15 ===
+
+Sequence: GTTCAGAGTTCTACA; Type: non-internal 5'; Length: 15; Trimmed: 0 times
+
+=== Adapter five_prime_16 ===
+
+Sequence: GTTCAGAGTTCTACAG; Type: non-internal 5'; Length: 16; Trimmed: 0 times
+
+=== Adapter five_prime_17 ===
+
+Sequence: GTTCAGAGTTCTACAGT; Type: non-internal 5'; Length: 17; Trimmed: 0 times
+
+=== Adapter five_prime_18 ===
+
+Sequence: GTTCAGAGTTCTACAGTC; Type: non-internal 5'; Length: 18; Trimmed: 0 times
+
+=== Adapter five_prime_19 ===
+
+Sequence: GTTCAGAGTTCTACAGTCC; Type: non-internal 5'; Length: 19; Trimmed: 0 times
+
+=== Adapter five_prime_20 ===
+
+Sequence: GTTCAGAGTTCTACAGTCCG; Type: non-internal 5'; Length: 20; Trimmed: 0 times
+
+=== Adapter five_prime_21 ===
+
+Sequence: GTTCAGAGTTCTACAGTCCGA; Type: non-internal 5'; Length: 21; Trimmed: 100 times
+
+Minimum overlap: 12
+No. of allowed errors:
+1-9 bp: 0; 10-19 bp: 1; 20-21 bp: 2
+
+Overview of removed sequences
+length	count	expect	max.err	error counts
+18	100	0.0	1	100
+
+
+=== Adapter five_prime_22 ===
+
+Sequence: GTTCAGAGTTCTACAGTCCGAC; Type: non-internal 5'; Length: 22; Trimmed: 0 times
+
+=== Adapter five_prime_23 ===
+
+Sequence: GTTCAGAGTTCTACAGTCCGACG; Type: non-internal 5'; Length: 23; Trimmed: 0 times
+
+=== Adapter five_prime_24 ===
+
+Sequence: GTTCAGAGTTCTACAGTCCGACGA; Type: non-internal 5'; Length: 24; Trimmed: 0 times
+
+=== Adapter five_prime_25 ===
+
+Sequence: GTTCAGAGTTCTACAGTCCGACGAT; Type: non-internal 5'; Length: 25; Trimmed: 0 times
+
+=== Adapter five_prime_26 ===
+
+Sequence: GTTCAGAGTTCTACAGTCCGACGATC; Type: non-internal 5'; Length: 26; Trimmed: 0 times
+
+=== Adapter five_prime_piece_0_26 ===
+
+Sequence: GTTCAGAGTTCTACAGTCCGACGATC; Type: regular 5'; Length: 26; Trimmed: 0 times
+
+=== Adapter five_prime_piece_0_25 ===
+
+Sequence: GTTCAGAGTTCTACAGTCCGACGAT; Type: regular 5'; Length: 25; Trimmed: 0 times
+
+=== Adapter five_prime_piece_1_25 ===
+
+Sequence: TTCAGAGTTCTACAGTCCGACGATC; Type: regular 5'; Length: 25; Trimmed: 0 times
+
+=== Adapter five_prime_piece_0_24 ===
+
+Sequence: GTTCAGAGTTCTACAGTCCGACGA; Type: regular 5'; Length: 24; Trimmed: 0 times
+
+=== Adapter five_prime_piece_1_24 ===
+
+Sequence: TTCAGAGTTCTACAGTCCGACGAT; Type: regular 5'; Length: 24; Trimmed: 0 times
+
+=== Adapter five_prime_piece_2_24 ===
+
+Sequence: TCAGAGTTCTACAGTCCGACGATC; Type: regular 5'; Length: 24; Trimmed: 0 times
+
+=== Adapter five_prime_piece_0_23 ===
+
+Sequence: GTTCAGAGTTCTACAGTCCGACG; Type: regular 5'; Length: 23; Trimmed: 0 times
+
+=== Adapter five_prime_piece_1_23 ===
+
+Sequence: TTCAGAGTTCTACAGTCCGACGA; Type: regular 5'; Length: 23; Trimmed: 0 times
+
+=== Adapter five_prime_piece_2_23 ===
+
+Sequence: TCAGAGTTCTACAGTCCGACGAT; Type: regular 5'; Length: 23; Trimmed: 0 times
+
+=== Adapter five_prime_piece_3_23 ===
+
+Sequence: CAGAGTTCTACAGTCCGACGATC; Type: regular 5'; Length: 23; Trimmed: 0 times
+
+=== Adapter five_prime_piece_0_22 ===
+
+Sequence: GTTCAGAGTTCTACAGTCCGAC; Type: regular 5'; Length: 22; Trimmed: 0 times
+
+=== Adapter five_prime_piece_1_22 ===
+
+Sequence: TTCAGAGTTCTACAGTCCGACG; Type: regular 5'; Length: 22; Trimmed: 0 times
+
+=== Adapter five_prime_piece_2_22 ===
+
+Sequence: TCAGAGTTCTACAGTCCGACGA; Type: regular 5'; Length: 22; Trimmed: 0 times
+
+=== Adapter five_prime_piece_3_22 ===
+
+Sequence: CAGAGTTCTACAGTCCGACGAT; Type: regular 5'; Length: 22; Trimmed: 0 times
+
+=== Adapter five_prime_piece_4_22 ===
+
+Sequence: AGAGTTCTACAGTCCGACGATC; Type: regular 5'; Length: 22; Trimmed: 0 times
+
+=== Adapter five_prime_piece_0_21 ===
+
+Sequence: GTTCAGAGTTCTACAGTCCGA; Type: regular 5'; Length: 21; Trimmed: 0 times
+
+=== Adapter five_prime_piece_1_21 ===
+
+Sequence: TTCAGAGTTCTACAGTCCGAC; Type: regular 5'; Length: 21; Trimmed: 0 times
+
+=== Adapter five_prime_piece_2_21 ===
+
+Sequence: TCAGAGTTCTACAGTCCGACG; Type: regular 5'; Length: 21; Trimmed: 0 times
+
+=== Adapter five_prime_piece_3_21 ===
+
+Sequence: CAGAGTTCTACAGTCCGACGA; Type: regular 5'; Length: 21; Trimmed: 0 times
+
+=== Adapter five_prime_piece_4_21 ===
+
+Sequence: AGAGTTCTACAGTCCGACGAT; Type: regular 5'; Length: 21; Trimmed: 0 times
+
+=== Adapter five_prime_piece_5_21 ===
+
+Sequence: GAGTTCTACAGTCCGACGATC; Type: regular 5'; Length: 21; Trimmed: 0 times
+
+=== Adapter five_prime_piece_0_20 ===
+
+Sequence: GTTCAGAGTTCTACAGTCCG; Type: regular 5'; Length: 20; Trimmed: 0 times
+
+=== Adapter five_prime_piece_1_20 ===
+
+Sequence: TTCAGAGTTCTACAGTCCGA; Type: regular 5'; Length: 20; Trimmed: 0 times
+
+=== Adapter five_prime_piece_2_20 ===
+
+Sequence: TCAGAGTTCTACAGTCCGAC; Type: regular 5'; Length: 20; Trimmed: 0 times
+
+=== Adapter five_prime_piece_3_20 ===
+
+Sequence: CAGAGTTCTACAGTCCGACG; Type: regular 5'; Length: 20; Trimmed: 0 times
+
+=== Adapter five_prime_piece_4_20 ===
+
+Sequence: AGAGTTCTACAGTCCGACGA; Type: regular 5'; Length: 20; Trimmed: 0 times
+
+=== Adapter five_prime_piece_5_20 ===
+
+Sequence: GAGTTCTACAGTCCGACGAT; Type: regular 5'; Length: 20; Trimmed: 0 times
+
+=== Adapter five_prime_piece_6_20 ===
+
+Sequence: AGTTCTACAGTCCGACGATC; Type: regular 5'; Length: 20; Trimmed: 0 times
+
+=== Adapter five_prime_piece_0_19 ===
+
+Sequence: GTTCAGAGTTCTACAGTCC; Type: regular 5'; Length: 19; Trimmed: 0 times
+
+=== Adapter five_prime_piece_1_19 ===
+
+Sequence: TTCAGAGTTCTACAGTCCG; Type: regular 5'; Length: 19; Trimmed: 0 times
+
+=== Adapter five_prime_piece_2_19 ===
+
+Sequence: TCAGAGTTCTACAGTCCGA; Type: regular 5'; Length: 19; Trimmed: 0 times
+
+=== Adapter five_prime_piece_3_19 ===
+
+Sequence: CAGAGTTCTACAGTCCGAC; Type: regular 5'; Length: 19; Trimmed: 0 times
+
+=== Adapter five_prime_piece_4_19 ===
+
+Sequence: AGAGTTCTACAGTCCGACG; Type: regular 5'; Length: 19; Trimmed: 0 times
+
+=== Adapter five_prime_piece_5_19 ===
+
+Sequence: GAGTTCTACAGTCCGACGA; Type: regular 5'; Length: 19; Trimmed: 0 times
+
+=== Adapter five_prime_piece_6_19 ===
+
+Sequence: AGTTCTACAGTCCGACGAT; Type: regular 5'; Length: 19; Trimmed: 0 times
+
+=== Adapter five_prime_piece_7_19 ===
+
+Sequence: GTTCTACAGTCCGACGATC; Type: regular 5'; Length: 19; Trimmed: 0 times
+
+=== Adapter five_prime_piece_0_18 ===
+
+Sequence: GTTCAGAGTTCTACAGTC; Type: regular 5'; Length: 18; Trimmed: 0 times
+
+=== Adapter five_prime_piece_1_18 ===
+
+Sequence: TTCAGAGTTCTACAGTCC; Type: regular 5'; Length: 18; Trimmed: 0 times
+
+=== Adapter five_prime_piece_2_18 ===
+
+Sequence: TCAGAGTTCTACAGTCCG; Type: regular 5'; Length: 18; Trimmed: 0 times
+
+=== Adapter five_prime_piece_3_18 ===
+
+Sequence: CAGAGTTCTACAGTCCGA; Type: regular 5'; Length: 18; Trimmed: 0 times
+
+=== Adapter five_prime_piece_4_18 ===
+
+Sequence: AGAGTTCTACAGTCCGAC; Type: regular 5'; Length: 18; Trimmed: 0 times
+
+=== Adapter five_prime_piece_5_18 ===
+
+Sequence: GAGTTCTACAGTCCGACG; Type: regular 5'; Length: 18; Trimmed: 0 times
+
+=== Adapter five_prime_piece_6_18 ===
+
+Sequence: AGTTCTACAGTCCGACGA; Type: regular 5'; Length: 18; Trimmed: 0 times
+
+=== Adapter five_prime_piece_7_18 ===
+
+Sequence: GTTCTACAGTCCGACGAT; Type: regular 5'; Length: 18; Trimmed: 0 times
+
+=== Adapter five_prime_piece_8_18 ===
+
+Sequence: TTCTACAGTCCGACGATC; Type: regular 5'; Length: 18; Trimmed: 0 times
+
+=== Adapter five_prime_piece_0_17 ===
+
+Sequence: GTTCAGAGTTCTACAGT; Type: regular 5'; Length: 17; Trimmed: 0 times
+
+=== Adapter five_prime_piece_1_17 ===
+
+Sequence: TTCAGAGTTCTACAGTC; Type: regular 5'; Length: 17; Trimmed: 0 times
+
+=== Adapter five_prime_piece_2_17 ===
+
+Sequence: TCAGAGTTCTACAGTCC; Type: regular 5'; Length: 17; Trimmed: 0 times
+
+=== Adapter five_prime_piece_3_17 ===
+
+Sequence: CAGAGTTCTACAGTCCG; Type: regular 5'; Length: 17; Trimmed: 0 times
+
+=== Adapter five_prime_piece_4_17 ===
+
+Sequence: AGAGTTCTACAGTCCGA; Type: regular 5'; Length: 17; Trimmed: 0 times
+
+=== Adapter five_prime_piece_5_17 ===
+
+Sequence: GAGTTCTACAGTCCGAC; Type: regular 5'; Length: 17; Trimmed: 0 times
+
+=== Adapter five_prime_piece_6_17 ===
+
+Sequence: AGTTCTACAGTCCGACG; Type: regular 5'; Length: 17; Trimmed: 0 times
+
+=== Adapter five_prime_piece_7_17 ===
+
+Sequence: GTTCTACAGTCCGACGA; Type: regular 5'; Length: 17; Trimmed: 0 times
+
+=== Adapter five_prime_piece_8_17 ===
+
+Sequence: TTCTACAGTCCGACGAT; Type: regular 5'; Length: 17; Trimmed: 0 times
+
+=== Adapter five_prime_piece_9_17 ===
+
+Sequence: TCTACAGTCCGACGATC; Type: regular 5'; Length: 17; Trimmed: 0 times
+
+=== Adapter five_prime_piece_0_16 ===
+
+Sequence: GTTCAGAGTTCTACAG; Type: regular 5'; Length: 16; Trimmed: 0 times
+
+=== Adapter five_prime_piece_1_16 ===
+
+Sequence: TTCAGAGTTCTACAGT; Type: regular 5'; Length: 16; Trimmed: 0 times
+
+=== Adapter five_prime_piece_2_16 ===
+
+Sequence: TCAGAGTTCTACAGTC; Type: regular 5'; Length: 16; Trimmed: 0 times
+
+=== Adapter five_prime_piece_3_16 ===
+
+Sequence: CAGAGTTCTACAGTCC; Type: regular 5'; Length: 16; Trimmed: 0 times
+
+=== Adapter five_prime_piece_4_16 ===
+
+Sequence: AGAGTTCTACAGTCCG; Type: regular 5'; Length: 16; Trimmed: 0 times
+
+=== Adapter five_prime_piece_5_16 ===
+
+Sequence: GAGTTCTACAGTCCGA; Type: regular 5'; Length: 16; Trimmed: 0 times
+
+=== Adapter five_prime_piece_6_16 ===
+
+Sequence: AGTTCTACAGTCCGAC; Type: regular 5'; Length: 16; Trimmed: 0 times
+
+=== Adapter five_prime_piece_7_16 ===
+
+Sequence: GTTCTACAGTCCGACG; Type: regular 5'; Length: 16; Trimmed: 0 times
+
+=== Adapter five_prime_piece_8_16 ===
+
+Sequence: TTCTACAGTCCGACGA; Type: regular 5'; Length: 16; Trimmed: 0 times
+
+=== Adapter five_prime_piece_9_16 ===
+
+Sequence: TCTACAGTCCGACGAT; Type: regular 5'; Length: 16; Trimmed: 0 times
+
+=== Adapter five_prime_piece_10_16 ===
+
+Sequence: CTACAGTCCGACGATC; Type: regular 5'; Length: 16; Trimmed: 0 times
+
+=== Adapter five_prime_piece_0_15 ===
+
+Sequence: GTTCAGAGTTCTACA; Type: regular 5'; Length: 15; Trimmed: 0 times
+
+=== Adapter five_prime_piece_1_15 ===
+
+Sequence: TTCAGAGTTCTACAG; Type: regular 5'; Length: 15; Trimmed: 0 times
+
+=== Adapter five_prime_piece_2_15 ===
+
+Sequence: TCAGAGTTCTACAGT; Type: regular 5'; Length: 15; Trimmed: 0 times
+
+=== Adapter five_prime_piece_3_15 ===
+
+Sequence: CAGAGTTCTACAGTC; Type: regular 5'; Length: 15; Trimmed: 0 times
+
+=== Adapter five_prime_piece_4_15 ===
+
+Sequence: AGAGTTCTACAGTCC; Type: regular 5'; Length: 15; Trimmed: 0 times
+
+=== Adapter five_prime_piece_5_15 ===
+
+Sequence: GAGTTCTACAGTCCG; Type: regular 5'; Length: 15; Trimmed: 0 times
+
+=== Adapter five_prime_piece_6_15 ===
+
+Sequence: AGTTCTACAGTCCGA; Type: regular 5'; Length: 15; Trimmed: 0 times
+
+=== Adapter five_prime_piece_7_15 ===
+
+Sequence: GTTCTACAGTCCGAC; Type: regular 5'; Length: 15; Trimmed: 0 times
+
+=== Adapter five_prime_piece_8_15 ===
+
+Sequence: TTCTACAGTCCGACG; Type: regular 5'; Length: 15; Trimmed: 0 times
+
+=== Adapter five_prime_piece_9_15 ===
+
+Sequence: TCTACAGTCCGACGA; Type: regular 5'; Length: 15; Trimmed: 0 times
+
+=== Adapter five_prime_piece_10_15 ===
+
+Sequence: CTACAGTCCGACGAT; Type: regular 5'; Length: 15; Trimmed: 0 times
+
+=== Adapter five_prime_piece_11_15 ===
+
+Sequence: TACAGTCCGACGATC; Type: regular 5'; Length: 15; Trimmed: 0 times
+
+=== Adapter five_prime_piece_0_14 ===
+
+Sequence: GTTCAGAGTTCTAC; Type: regular 5'; Length: 14; Trimmed: 0 times
+
+=== Adapter five_prime_piece_1_14 ===
+
+Sequence: TTCAGAGTTCTACA; Type: regular 5'; Length: 14; Trimmed: 0 times
+
+=== Adapter five_prime_piece_2_14 ===
+
+Sequence: TCAGAGTTCTACAG; Type: regular 5'; Length: 14; Trimmed: 0 times
+
+=== Adapter five_prime_piece_3_14 ===
+
+Sequence: CAGAGTTCTACAGT; Type: regular 5'; Length: 14; Trimmed: 0 times
+
+=== Adapter five_prime_piece_4_14 ===
+
+Sequence: AGAGTTCTACAGTC; Type: regular 5'; Length: 14; Trimmed: 0 times
+
+=== Adapter five_prime_piece_5_14 ===
+
+Sequence: GAGTTCTACAGTCC; Type: regular 5'; Length: 14; Trimmed: 0 times
+
+=== Adapter five_prime_piece_6_14 ===
+
+Sequence: AGTTCTACAGTCCG; Type: regular 5'; Length: 14; Trimmed: 0 times
+
+=== Adapter five_prime_piece_7_14 ===
+
+Sequence: GTTCTACAGTCCGA; Type: regular 5'; Length: 14; Trimmed: 0 times
+
+=== Adapter five_prime_piece_8_14 ===
+
+Sequence: TTCTACAGTCCGAC; Type: regular 5'; Length: 14; Trimmed: 0 times
+
+=== Adapter five_prime_piece_9_14 ===
+
+Sequence: TCTACAGTCCGACG; Type: regular 5'; Length: 14; Trimmed: 0 times
+
+=== Adapter five_prime_piece_10_14 ===
+
+Sequence: CTACAGTCCGACGA; Type: regular 5'; Length: 14; Trimmed: 0 times
+
+=== Adapter five_prime_piece_11_14 ===
+
+Sequence: TACAGTCCGACGAT; Type: regular 5'; Length: 14; Trimmed: 0 times
+
+=== Adapter five_prime_piece_12_14 ===
+
+Sequence: ACAGTCCGACGATC; Type: regular 5'; Length: 14; Trimmed: 0 times
