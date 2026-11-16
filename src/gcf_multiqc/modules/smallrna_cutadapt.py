@@ -2,8 +2,9 @@
 
 `gcf_smallrna_cutadapt` reads only the merged reports of the gcf-workflows smallrna cutadapt route
 (gcf-workflows#350): one single-end JSON report per sample in cutadapt's schema, tagged "Cutadapt report, merged
-from the passes in gcf_passes", with input reads from the 3' adapter pass, filtered categories summed over both
-passes, and `--discard-trimmed` used for 5' adapter artefacts. Its search pattern matches that tag only, so per-pass
+from the passes in gcf_passes", with input reads from the 3' adapter pass, filtered categories summed over the
+passes, `--discard-trimmed` used for 5' adapter artefacts, and reads still containing 3' adapter or Illumina primer
+sequence (the workflow's third pass, gcf-workflows#353) as `gcf_three_prime_artefacts`. Its search pattern matches that tag only, so per-pass
 reports and text logs are never read. Reports select it explicitly (`-m gcf_smallrna_cutadapt`); selecting native
 `cutadapt` as well is an error (hooks.config_loaded), and default runs leave it out. Paired-end reports and two
 reports with one sample name raise an error. MultiQC catches module errors and, without `--strict`, still writes a
@@ -13,7 +14,8 @@ written; the `before_modules` hook clears them at the start of each run.
 
 Upstream MultiQC 1.35 reads only `too_short`, `too_long` and `too_many_n` from `read_counts.filtered` and shows the
 rest as "Filtered reads (uncategorised)". This module names every JSON category, `discard_trimmed` as "5′ adapter
-artefacts"; uncategorised remains for counts the report does not explain. General Statistics give the GCF fastp
+artefacts" and `gcf_three_prime_artefacts` as "Untrimmed 3′ adapter or primer sequence"; uncategorised remains for
+counts the report does not explain. General Statistics give the GCF fastp
 module's columns (input reads, % passing filter, % with 3' adapter) instead of "Trimmed bases", which counts the bases
 of discarded reads as trimmed.
 
@@ -44,6 +46,8 @@ EXTRA_CATEGORIES = {
     "casava_filtered": "Reads failing the CASAVA filter",
     "discard_trimmed": "5′ adapter artefacts",
     "discard_untrimmed": "Reads discarded: no adapter found",
+    # The workflow's third pass (gcf-workflows#353): reads still containing 3' adapter or Illumina primer sequence
+    "gcf_three_prime_artefacts": "Untrimmed 3′ adapter or primer sequence",
 }
 UPSTREAM_CATEGORIES = ["r_too_short", "r_too_long", "r_too_many_N"]
 # Invalid input of the current MultiQC run, from every instance of the module: cleared once per run by

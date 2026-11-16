@@ -14,7 +14,17 @@ from multiqc.base_module import BaseMultiqcModule, ModuleNoSamplesFound
 from multiqc.plots import bargraph, linegraph
 
 log = logging.getLogger(__name__)
-BIOTYPES = ("miRNA", "tRNA", "rRNA", "protein_coding", "lincRNA", "snoRNA", "no annotation")
+BIOTYPES = ("miRNA", "tRNA", "rRNA", "misc_RNA", "protein_coding", "lncRNA", "snoRNA", "no annotation")
+# Ensembl's older name for lncRNA, from UNITAS reference dumps built before Ensembl renamed the biotype.
+BIOTYPE_ALIASES = {"lincRNA": "lncRNA"}
+# Plot names; misc_RNA is mostly Y RNA fragments in plasma and serum (gcfntnu/gcf-multiqc#11).
+BIOTYPE_NAMES = {"misc_RNA": "misc_RNA (Y RNA, 7SK, 7SL, …)"}
+
+
+def biotype(label):
+    """A top-level UNITAS class as a reported category; classes not listed are "other"."""
+    label = BIOTYPE_ALIASES.get(label, label)
+    return label if label in BIOTYPES else "other"
 
 
 def _count(value):
@@ -36,7 +46,7 @@ def parse_annotation(contents):
             raise ValueError("Malformed Unitas annotation row; expected category and count")
         label, raw_count = fields
         count = _count(raw_count)
-        category = label.strip() if label.strip() in BIOTYPES else "other"
+        category = biotype(label.strip())
         annotations[category] += count
         total += count
     if not annotations:
@@ -48,9 +58,9 @@ def parse_annotation(contents):
 def sequence_biotype(filename):
     if re.fullmatch(r"unitas\.miR\..+\.info", filename):
         return "miRNA"
-    for biotype in BIOTYPES:
-        if filename == f"unitas.{biotype.replace(' ', '-')}.info":
-            return biotype
+    for label in (*BIOTYPES, *BIOTYPE_ALIASES):
+        if filename == f"unitas.{label.replace(' ', '-')}.info":
+            return BIOTYPE_ALIASES.get(label, label)
     return None
 
 
@@ -168,7 +178,9 @@ class MultiqcModule(BaseMultiqcModule):
         if annotations:
             self.write_data_file(annotations, "multiqc_unitas_annotations")
             categories = {
-                key: {"name": key} for key in (*BIOTYPES, "other") if any(key in row for row in annotations.values())
+                key: {"name": BIOTYPE_NAMES.get(key, key)}
+                for key in (*BIOTYPES, "other")
+                if any(key in row for row in annotations.values())
             }
             self.add_section(
                 name="Annotations",
@@ -200,7 +212,9 @@ class MultiqcModule(BaseMultiqcModule):
                         "xlab": "Sequence length (nt)",
                         "xmin": 10,
                         "xmax": 50,
-                        "data_labels": [{"name": key, "ylab": f"Number of {key} Reads"} for key in biotypes],
+                        "data_labels": [
+                            {"name": key, "ylab": f"Number of {BIOTYPE_NAMES.get(key, key)} reads"} for key in biotypes
+                        ],
                     },
                 ),
             )

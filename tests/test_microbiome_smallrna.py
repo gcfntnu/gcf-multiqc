@@ -211,3 +211,30 @@ def test_empty_inputs_are_cleanly_no_samples(tmp_path, module):
     assert "no log files were found" in result.stderr.lower()
     assert "Traceback" not in result.stderr
     assert not (out / "multiqc_report.html").exists()
+
+
+def test_unitas_misc_rna_and_lncrna_are_categories():
+    """misc_RNA (mostly Y RNA in plasma) and lncRNA, also under Ensembl's older lincRNA, are not "other" (#11)."""
+    annotations, metrics = unitas.parse_annotation(
+        "miRNA\t50\nmisc_RNA\t500\n   Y_RNA\t400\nlncRNA\t20\nlincRNA\t5\nsnRNA\t7\nunknown\t3\n"
+    )
+    assert annotations == {"miRNA": 50, "misc_RNA": 500, "lncRNA": 25, "other": 10}
+    assert metrics == {"miRNA Percentage": 50 / 585}
+    assert unitas.sequence_biotype("unitas.misc_RNA.info") == "misc_RNA"
+    assert unitas.sequence_biotype("unitas.lncRNA.info") == "lncRNA"
+    assert unitas.sequence_biotype("unitas.lincRNA.info") == "lncRNA"
+    assert unitas.sequence_biotype("unitas.snRNA.info") is None
+
+
+def test_report_names_misc_rna_with_y_rna(tmp_path):
+    from test_compatibility import render
+
+    sample = tmp_path / "inputs" / "S1"
+    (sample / "sequence_info").mkdir(parents=True)
+    (sample / "unitas.annotation_summary.txt").write_text("miRNA\t50\nmisc_RNA\t500\nlncRNA\t20\nsnRNA\t7\n")
+    (sample / "sequence_info" / "unitas.misc_RNA.info").write_text("misc_RNA\nlength\tcount\n31\t100\n32\t400\n")
+    data, _, _ = render(tmp_path, tmp_path / "inputs", ["unitas"])
+    cats = [c["name"] for c in data["report_plot_data"]["unitas_annotation"]["datasets"][0]["cats"]]
+    assert cats == ["miRNA", "misc_RNA (Y RNA, 7SK, 7SL, …)", "lncRNA", "other"]
+    lengths = data["report_plot_data"]["unitas_seqlen_plot"]["datasets"]
+    assert [(line["name"], line["pairs"]) for line in lengths[0]["lines"]] == [("S1", [[31, 100.0], [32, 400.0]])]
